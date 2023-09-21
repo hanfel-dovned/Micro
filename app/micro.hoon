@@ -1,5 +1,6 @@
 /-  micro
-/+  dbug, default-agent
+/+  dbug, default-agent, server, schooner
+/*  ui  %html  /app/micro/html
 ::
 |%
 ::
@@ -40,6 +41,7 @@
 ++  on-poke
   |=  =cage
   ^-  (quip card _this)
+  ?>  =(src.bowl our.bowl)
   =^  cards  state  abet:(poke:hc cage)
   [cards this]
 ::
@@ -92,8 +94,18 @@
 ++  poke
   |=  =cage
   ^+  that
-  ?>  =(-.cage %micro-action)
-  =/  act  !<(action:micro +.cage)
+  ?>  =(src.bowl our.bowl)
+  ?+    -.cage  !!
+      %handle-http-request
+    (handle-http !<([@ta =inbound-request:eyre] +.cage))
+    ::
+      %micro-action
+    (handle-action !<(action:micro +.cage))    
+  ==
+::
+++  handle-action
+  |=  act=action:micro
+  ^+  that
   ?-    -.act
       %link
     that(apps ~(put in apps) path.act)
@@ -103,5 +115,35 @@
     ::
       %view
     that(new ~(del in new) app.act)
+  ==
+::
+++  handle-http
+  |=  [eyre-id=@ta =inbound-request:eyre]
+  ^+  that
+  =/  ,request-line:servlib
+    (parse-request-line:servlib url.request.inbound-request)
+  =+  send=(cury response:schooner eyre-id)
+  ::
+  ?.  authenticated.inbound-request
+    (emil (send [302 ~ [%login-redirect './apps/micro']]))
+  ?+    method.request.inbound-request
+    (emil (send [405 ~ [%stock ~]]))
+    ::
+    ::    %'POST'
+    ::  =/  json  (de-json:html q.u.body.request.inbound-request)
+    ::  =/  act  (dejs-action +.json)
+    ::  (handle-action act)
+    ::
+      %'GET'
+    %-  emil
+    %-  send
+    ?+    site  [404 ~ [%plain "404 - Not Found"]]
+    ::
+        [%apps %micro ~]
+      [200 ~ [%html ui]]
+    ::
+        [%apps %micro %state ~]
+      [200 ~ [%json (enjs-state [apps new])]]
+    ==
   ==
 --

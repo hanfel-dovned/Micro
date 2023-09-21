@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Micro</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    #container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+    #leftMargin, #rightMargin {
+      width: 19%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      z-index: 2;
+    }
+    #leftMargin {
+      left: 0;
+    }
+    #rightMargin {
+      right: 0;
+    }
+    iframe {
+      border: 1px solid black;
+      border-radius: 10px;
+      height: 90%;
+      width: 60%;
+      z-index: 1;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .hidden {
+      visibility: hidden;
+    }
+    .arrow {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="leftMargin">
+      <div class="arrow">&#9650;</div>
+    </div>
+    <iframe id="iframe1" src="./click.html"></iframe>
+    <iframe id="iframe2" class="hidden"></iframe>
+    <div id="rightMargin">
+      <div class="arrow">&#9660;</div>
+    </div>
+  </div>
+  <script>
+    let websites = [
+      "./click.html",
+      "./board.html",
+      "./pals.html",
+    ];
+    let currentIndex = 0;
+    const iframes = [document.getElementById("iframe1"), document.getElementById("iframe2")];
+    let activeIframe = 0;
+    const leftMargin = document.getElementById("leftMargin");
+    const rightMargin = document.getElementById("rightMargin");
+
+    function preloadNextIframe() {
+      newIndex = currentIndex + 1;
+      if (newIndex >= websites.length) newIndex = 0;
+      iframes[1 - activeIframe].src = websites[newIndex];
+    }
+
+    function preloadPreviousIframe() {
+      newIndex = currentIndex - 1;
+      if (newIndex < 0) newIndex = websites.length - 1;
+      iframes[1 - activeIframe].src = websites[newIndex];
+    }
+
+    function changeIframe(increment) {
+      if (increment > 0) {
+        currentIndex++;
+        if (currentIndex >= websites.length) currentIndex = 0;
+      } else {
+        currentIndex--;
+        if (currentIndex < 0) currentIndex = websites.length - 1;
+      }
+
+      if (iframes[1 - activeIframe].src !== websites[currentIndex]) {
+        iframes[1 - activeIframe].src = websites[currentIndex];
+      }
+
+      iframes[activeIframe].style.transition = "transform .25s";
+      iframes[activeIframe].style.transform = `translate(-50%, ${increment > 0 ? '-160%' : '50%'})`;
+
+      setTimeout(() => {
+        activeIframe = 1 - activeIframe;
+        iframes[activeIframe].className = "";
+        iframes[1 - activeIframe].className = "hidden";
+
+        if (increment > 0) {
+          preloadNextIframe();
+        } else {
+          preloadPreviousIframe();
+        }
+
+        iframes[activeIframe].style.transition = "none";
+        iframes[activeIframe].style.transform = `translate(-50%, ${increment > 0 ? '50%' : '-160%'})`;
+
+        setTimeout(() => {
+          iframes[activeIframe].style.transition = "transform .25s";
+          iframes[activeIframe].style.transform = "translate(-50%, -50%)";
+        }, 50);
+      }, 250);
+    }
+
+    rightMargin.addEventListener('mouseover', () => {
+      rightMargin.style.backgroundColor = "lightgreen";
+      rightMargin.querySelector('.arrow').style.display = "block";
+    });
+    rightMargin.addEventListener('mouseout', () => {
+      rightMargin.style.backgroundColor = "transparent";
+      rightMargin.querySelector('.arrow').style.display = "none";
+    });
+    rightMargin.addEventListener('mousedown', () => {
+      rightMargin.style.backgroundColor = "#7a9";
+    });
+    rightMargin.addEventListener('mouseup', () => {
+      rightMargin.style.backgroundColor = "lightgreen";
+    });
+    rightMargin.addEventListener('click', () => changeIframe(1));
+
+    leftMargin.addEventListener('mouseover', () => {
+      leftMargin.style.backgroundColor = "lightblue";
+      leftMargin.querySelector('.arrow').style.display = "block";
+    });
+    leftMargin.addEventListener('mouseout', () => {
+      leftMargin.style.backgroundColor = "transparent";
+      leftMargin.querySelector('.arrow').style.display = "none";
+    });
+    leftMargin.addEventListener('mousedown', () => {
+      leftMargin.style.backgroundColor = "#79a";
+    });
+    leftMargin.addEventListener('mouseup', () => {
+      leftMargin.style.backgroundColor = "lightblue";
+    });
+    leftMargin.addEventListener('click', () => changeIframe(-1));
+
+    preloadNextIframe();
+  </script>
+</body>
+</html>
