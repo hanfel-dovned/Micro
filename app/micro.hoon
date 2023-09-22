@@ -108,13 +108,16 @@
   ^+  that
   ?-    -.act
       %link
-    that(apps ~(put in apps) path.act)
+    %=  that
+      apps  (~(put in apps) path.act)
+      new   (~(put in new) [now.bowl path.act 1])
+    ==
     ::
       %bump
-    that(new ~(put in new) [now.bowl path.act priority.act])
+    that(new (~(put in new) [now.bowl path.act priority.act]))
     ::
       %view
-    that(new ~(del in new) app.act)
+    that(new (~(del in new) app.act))
   ==
 ::
 ++  handle-http
