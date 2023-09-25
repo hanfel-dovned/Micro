@@ -5,7 +5,7 @@
 +$  new  (set [=id =path =priority])
 +$  action  
   $%  [%link =path]
-      [%bump $%([%default =priority] [%special =path =priority])]
+      [%bump =path =priority]
       [%view app=[=id =path =priority]]
   ==
-==
+--

@@ -78,7 +78,7 @@
 ::
 ++  init
   ^+  that
-  that
+  (emit [%pass /eyre/connect %arvo %e %connect `/apps/micro %micro])
 ::
 ++  load
   |=  =vase
@@ -89,7 +89,11 @@
 ++  watch
   |=  =path
   ^+  that
-  (emit update)
+  ?+    path  that
+      [%http-response *]
+    that
+  ==
+  ::(emit update)
 ::
 ++  poke
   |=  =cage
@@ -123,14 +127,14 @@
 ++  handle-http
   |=  [eyre-id=@ta =inbound-request:eyre]
   ^+  that
-  =/  ,request-line:servlib
-    (parse-request-line:servlib url.request.inbound-request)
+  =/  ,request-line:server
+    (parse-request-line:server url.request.inbound-request)
   =+  send=(cury response:schooner eyre-id)
   ::
   ?.  authenticated.inbound-request
-    (emil (send [302 ~ [%login-redirect './apps/micro']]))
+    (emil (flop (send [302 ~ [%login-redirect './apps/micro']])))
   ?+    method.request.inbound-request
-    (emil (send [405 ~ [%stock ~]]))
+    (emil (flop (send [405 ~ [%stock ~]])))
     ::
     ::    %'POST'
     ::  =/  json  (de-json:html q.u.body.request.inbound-request)
@@ -139,14 +143,32 @@
     ::
       %'GET'
     %-  emil
+    %-  flop
     %-  send
     ?+    site  [404 ~ [%plain "404 - Not Found"]]
     ::
         [%apps %micro ~]
       [200 ~ [%html ui]]
     ::
-        [%apps %micro %state ~]
-      [200 ~ [%json (enjs-state [apps new])]]
+    ::    [%apps %micro %state ~]
+    ::  [200 ~ [%json (enjs-state [apps new])]]
     ==
   ==
+::
+::++  enjs-state
+::  =,  enjs:format
+::  |=  [=apps:micro =new:micro]
+::  ^-  json
+::  :-  %a
+::  :-  [%s (scot %p our.bowl)]
+::  %+  turn
+::    ~(tap by bords)
+::  |=  [p=@p =bord]
+::  %+  frond  (scot %p p)
+::  :-  %a
+::  :~
+::      (frond 'text' [%s content:bord])
+::      (frond 'bg-color' [%s (scot %ux bg-color:bord)])
+::      (frond 'text-color' [%s (scot %ux text-color:bord)])
+::  ==
 --

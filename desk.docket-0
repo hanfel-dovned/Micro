@@ -1,9 +1,8 @@
 :~  title+'Micro'
     info+'A feed for apps.'
-    color+0xff.4400
-    image+'https://nyc3.digitaloceanspaces.com/sogrum-savluc/sogrum-savluc/2023.5.10..20.56.33-tharsis.gif'
-    glob-http+['https://nyc3.digitaloceanspaces.com/sogrum-savluc/sogrum-savluc/2023.8.09..17.17.14-glob-0v2.vphip.dk1ki.uf71v.an1fn.epmig.glob' 0v2.vphip.dk1ki.uf71v.an1fn.epmig]
+    color+0xff.4444
     base+'micro'
+    site+/apps/micro
     version+[0 0 1]
     website+'https://x.com/hanfel_dovned'
     license+'Draconian'
