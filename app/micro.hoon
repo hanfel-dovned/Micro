@@ -6,7 +6,7 @@
 ::
 +$  versioned-state  $%(state-0)
 ::
-+$  state-0  [%0 =apps:micro =new:micro]
++$  state-0  [%0 =apps:micro =new:micro =ignored:micro]
 ::
 +$  card  card:agent:gall
 --
@@ -117,11 +117,24 @@
       new   (~(put in new) [now.bowl path.act 1])
     ==
     ::
+      %unlink
+    that(apps (~(del in apps) path.act))
+    ::
       %bump
+    ?<  (~(has in ignored) dap.bowl)
     that(new (~(put in new) [now.bowl path.act priority.act]))
     ::
       %view
     that(new (~(del in new) app.act))
+    ::
+      %view-all
+    that(new ~)
+    ::
+      %ignore
+    that(ignored (~(put in ignored) agent.act))
+    ::
+      %unignore
+    that(ignored (~(del in ignored) agent.act))
   ==
 ::
 ++  handle-http
