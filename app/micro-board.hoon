@@ -23,9 +23,15 @@
     :*  %pass  /eyre/connect  %arvo  %e
         %connect  `/apps/micro-board  %micro-board
     ==
+    ::
     :*  %pass  /newpals  %agent
         [our.bowl %pals]  %watch  /targets
-    ==  
+    ==
+    ::
+    :*  %pass  /micro  %agent
+        [our.bowl %micro]  %poke
+        %micro-action  !>([%link /apps/micro-board])
+    ==
   ==
 ::
 ++  on-save
@@ -70,7 +76,6 @@
         [(send [405 ~ [%stock ~]]) state]
       =/  json  (de:json:html q.u.body.request.inbound-request)
       =/  action  (dejs-action +.json)
-      ~&  action
       (handle-action action) 
       :: 
         %'GET'

@@ -77,173 +77,183 @@
     <div id="leftMargin">
       <div class="arrow">&#9664;</div>
     </div>
-    <iframe id="iframe1" src="./click.html"></iframe>
+    <iframe id="iframe1"></iframe>
     <iframe id="iframe2" class="hidden"></iframe>
     <div id="rightMargin">
       <div class="arrow">&#9658;</div>
     </div>
   </div>
   <script>
-    let websites = [
-      "./click.html",
-      "./board.html",
-      "./pals.html",
-    ];
     let currentIndex = 0;
     const iframes = [document.getElementById("iframe1"), document.getElementById("iframe2")];
     let activeIframe = 0;
     const leftMargin = document.getElementById("leftMargin");
     const rightMargin = document.getElementById("rightMargin");
     let initialTranslateX = 0;
+    
+    getState()
+      .then((state) => renderPage(state))
 
-    window.addEventListener('load', () => {
-      if (isMobile()) {
-        iframes.forEach(iframe => {
-          iframe.style.transform = "translateX(0)";
-        });
-      }
-    });
-
-    function preloadNextIframe() {
-      newIndex = currentIndex + 1;
-      if (newIndex >= websites.length) newIndex = 0;
-      iframes[1 - activeIframe].src = websites[newIndex];
+    async function getState() {
+      const response = await fetch('/apps/micro/state')
+      return response.json()
     }
 
-    function preloadPreviousIframe() {
-      newIndex = currentIndex - 1;
-      if (newIndex < 0) newIndex = websites.length - 1;
-      iframes[1 - activeIframe].src = websites[newIndex];
-    }
+    function renderPage(state)
+    {
+      apps = state[0];
+      news = state[1];
 
-    function changeIframe(increment) {
-        if (increment > 0) {
-            currentIndex++;
-            if (currentIndex >= websites.length) currentIndex = 0;
-        } else {
-            currentIndex--;
-            if (currentIndex < 0) currentIndex = websites.length - 1;
-        }
-
-        if (iframes[1 - activeIframe].src !== websites[currentIndex]) {
-            iframes[1 - activeIframe].src = websites[currentIndex];
-        }
-
+      window.addEventListener('load', () => {
         if (isMobile()) {
-          iframes[activeIframe].style.transition = "transform .25s";
-          iframes[activeIframe].style.transform = `translateX(${increment > 0 ? '-100%' : '100%'})`;
-        } else {
-          iframes[activeIframe].style.transition = "transform .25s";
-          iframes[activeIframe].style.transform = `translate(${increment > 0 ? '-160%' : '160%'}, -50%)`;
-        }
-
-        setTimeout(() => {
-            activeIframe = 1 - activeIframe;
-            iframes[activeIframe].className = "";
-            iframes[1 - activeIframe].className = "hidden";
-
-            if (increment > 0) {
-                preloadNextIframe();
-            } else {
-                preloadPreviousIframe();
-            }
-
-            if (isMobile()) {
-              iframes[activeIframe].style.transition = "none";
-              iframes[activeIframe].style.transform = `translateX(${increment > 0 ? '100%' : '-100%'})`;
-            } else {
-              iframes[activeIframe].style.transition = "none";
-              iframes[activeIframe].style.transform = `translate(${increment > 0 ? '160%' : '-160%'}, -50%)`;
-            }
-
-            setTimeout(() => {
-                iframes[activeIframe].style.transition = "transform .25s";
-                iframes[activeIframe].style.transform = isMobile() ? "translateX(0)" : "translate(-50%, -50%)";
-              }, 50);
-            }, 250);
-    }
-
-    rightMargin.addEventListener('mouseover', () => {
-      rightMargin.style.backgroundColor = "lightgreen";
-      rightMargin.querySelector('.arrow').style.display = "block";
-    });
-    rightMargin.addEventListener('mouseout', () => {
-      rightMargin.style.backgroundColor = "transparent";
-      rightMargin.querySelector('.arrow').style.display = "none";
-    });
-    rightMargin.addEventListener('mousedown', () => {
-      rightMargin.style.backgroundColor = "#7a9";
-    });
-    rightMargin.addEventListener('mouseup', () => {
-      rightMargin.style.backgroundColor = "lightgreen";
-    });
-    rightMargin.addEventListener('click', () => changeIframe(1));
-
-    leftMargin.addEventListener('mouseover', () => {
-      leftMargin.style.backgroundColor = "lightblue";
-      leftMargin.querySelector('.arrow').style.display = "block";
-    });
-    leftMargin.addEventListener('mouseout', () => {
-      leftMargin.style.backgroundColor = "transparent";
-      leftMargin.querySelector('.arrow').style.display = "none";
-    });
-    leftMargin.addEventListener('mousedown', () => {
-      leftMargin.style.backgroundColor = "#79a";
-    });
-    leftMargin.addEventListener('mouseup', () => {
-      leftMargin.style.backgroundColor = "lightblue";
-    });
-    leftMargin.addEventListener('click', () => changeIframe(-1));
-
-    function isMobile() {
-      return 'ontouchstart' in window;
-    }
-
-    if (isMobile()) {
-      let startX = 0;
-      let endX = 0;
-
-      // Add touch event listeners
-      document.addEventListener('touchstart', function(e) {
-        startX = e.touches[0].clientX;
-        initialTranslateX = parseFloat(iframes[activeIframe].style.transform.match(/-?\d+\.?\d*/)) || 0;
-      }, false);
-
-      document.addEventListener('touchmove', function(e) {
-        endX = e.touches[0].clientX;
-        let deltaX = endX - startX;
-
-        iframes[activeIframe].style.transition = "none";
-        iframes[activeIframe].style.transform = `translateX(${initialTranslateX + deltaX}px)`;
-      }, false);
-
-      document.addEventListener('touchend', function(e) {
-        endX = e.changedTouches[0].clientX;
-        if (startX - endX > 100) { 
-          changeIframe(1);
-        } else if (endX - startX > 100) { 
-          changeIframe(-1);
-        } else {
-          iframes[activeIframe].style.transition = "transform .25s";
-          iframes[activeIframe].style.transform = `translateX(${initialTranslateX}px)`;
-        }
-      }, false);
-    } else {
-      document.addEventListener('keydown', function(event) {
-        switch (event.keyCode) {
-          case 37: // Left arrow key
-            changeIframe(-1);
-            break;
-          case 39: // Right arrow key
-            changeIframe(1);
-            break;
-          default:
-            break;
+          iframes.forEach(iframe => {
+            iframe.style.transform = "translateX(0)";
+          });
         }
       });
-    }
 
-    preloadNextIframe();
+      function preloadNextIframe() {
+        newIndex = currentIndex + 1;
+        if (newIndex >= apps.length) newIndex = 0;
+        iframes[1 - activeIframe].src = apps[newIndex];
+      }
+
+      function preloadPreviousIframe() {
+        newIndex = currentIndex - 1;
+        if (newIndex < 0) newIndex = apps.length - 1;
+        iframes[1 - activeIframe].src = apps[newIndex];
+      }
+
+      function changeIframe(increment) {
+          if (increment > 0) {
+              currentIndex++;
+              if (currentIndex >= apps.length) currentIndex = 0;
+          } else {
+              currentIndex--;
+              if (currentIndex < 0) currentIndex = apps.length - 1;
+          }
+
+          if (iframes[1 - activeIframe].src !== apps[currentIndex]) {
+              iframes[1 - activeIframe].src = apps[currentIndex];
+          }
+
+          if (isMobile()) {
+            iframes[activeIframe].style.transition = "transform .25s";
+            iframes[activeIframe].style.transform = `translateX(${increment > 0 ? '-100%' : '100%'})`;
+          } else {
+            iframes[activeIframe].style.transition = "transform .25s";
+            iframes[activeIframe].style.transform = `translate(${increment > 0 ? '-160%' : '160%'}, -50%)`;
+          }
+
+          setTimeout(() => {
+              activeIframe = 1 - activeIframe;
+              iframes[activeIframe].className = "";
+              iframes[1 - activeIframe].className = "hidden";
+
+              if (increment > 0) {
+                  preloadNextIframe();
+              } else {
+                  preloadPreviousIframe();
+              }
+
+              if (isMobile()) {
+                iframes[activeIframe].style.transition = "none";
+                iframes[activeIframe].style.transform = `translateX(${increment > 0 ? '100%' : '-100%'})`;
+              } else {
+                iframes[activeIframe].style.transition = "none";
+                iframes[activeIframe].style.transform = `translate(${increment > 0 ? '160%' : '-160%'}, -50%)`;
+              }
+
+              setTimeout(() => {
+                  iframes[activeIframe].style.transition = "transform .25s";
+                  iframes[activeIframe].style.transform = isMobile() ? "translateX(0)" : "translate(-50%, -50%)";
+              }, 50);
+          }, 250);
+      }
+
+      rightMargin.addEventListener('mouseover', () => {
+        rightMargin.style.backgroundColor = "lightgreen";
+        rightMargin.querySelector('.arrow').style.display = "block";
+      });
+      rightMargin.addEventListener('mouseout', () => {
+        rightMargin.style.backgroundColor = "transparent";
+        rightMargin.querySelector('.arrow').style.display = "none";
+      });
+      rightMargin.addEventListener('mousedown', () => {
+        rightMargin.style.backgroundColor = "#7a9";
+      });
+      rightMargin.addEventListener('mouseup', () => {
+        rightMargin.style.backgroundColor = "lightgreen";
+      });
+      rightMargin.addEventListener('click', () => changeIframe(1));
+
+      leftMargin.addEventListener('mouseover', () => {
+        leftMargin.style.backgroundColor = "lightblue";
+        leftMargin.querySelector('.arrow').style.display = "block";
+      });
+      leftMargin.addEventListener('mouseout', () => {
+        leftMargin.style.backgroundColor = "transparent";
+        leftMargin.querySelector('.arrow').style.display = "none";
+      });
+      leftMargin.addEventListener('mousedown', () => {
+        leftMargin.style.backgroundColor = "#79a";
+      });
+      leftMargin.addEventListener('mouseup', () => {
+        leftMargin.style.backgroundColor = "lightblue";
+      });
+      leftMargin.addEventListener('click', () => changeIframe(-1));
+
+      function isMobile() {
+        return 'ontouchstart' in window;
+      }
+
+      if (isMobile()) {
+        let startX = 0;
+        let endX = 0;
+
+        // Add touch event listeners
+        document.addEventListener('touchstart', function(e) {
+          startX = e.touches[0].clientX;
+          initialTranslateX = parseFloat(iframes[activeIframe].style.transform.match(/-?\d+\.?\d*/)) || 0;
+        }, false);
+
+        document.addEventListener('touchmove', function(e) {
+          endX = e.touches[0].clientX;
+          let deltaX = endX - startX;
+
+          iframes[activeIframe].style.transition = "none";
+          iframes[activeIframe].style.transform = `translateX(${initialTranslateX + deltaX}px)`;
+        }, false);
+
+        document.addEventListener('touchend', function(e) {
+          endX = e.changedTouches[0].clientX;
+          if (startX - endX > 100) { 
+            changeIframe(1);
+          } else if (endX - startX > 100) { 
+            changeIframe(-1);
+          } else {
+            iframes[activeIframe].style.transition = "transform .25s";
+            iframes[activeIframe].style.transform = `translateX(${initialTranslateX}px)`;
+          }
+        }, false);
+      } else {
+        document.addEventListener('keydown', function(event) {
+          switch (event.keyCode) {
+            case 37: // Left arrow key
+              changeIframe(-1);
+              break;
+            case 39: // Right arrow key
+              changeIframe(1);
+              break;
+            default:
+              break;
+          }
+        });
+      }
+
+      preloadNextIframe();
+      changeIframe(1);
+    }
   </script>
 </body>
 </html>

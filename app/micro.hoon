@@ -163,25 +163,31 @@
         [%apps %micro ~]
       [200 ~ [%html ui]]
     ::
-    ::    [%apps %micro %state ~]
-    ::  [200 ~ [%json (enjs-state [apps new])]]
+        [%apps %micro %state ~]
+      [200 ~ [%json (enjs-state [apps new])]]
     ==
   ==
 ::
-::++  enjs-state
-::  =,  enjs:format
-::  |=  [=apps:micro =new:micro]
-::  ^-  json
-::  :-  %a
-::  :-  [%s (scot %p our.bowl)]
-::  %+  turn
-::    ~(tap by bords)
-::  |=  [p=@p =bord]
-::  %+  frond  (scot %p p)
-::  :-  %a
-::  :~
-::      (frond 'text' [%s content:bord])
-::      (frond 'bg-color' [%s (scot %ux bg-color:bord)])
-::      (frond 'text-color' [%s (scot %ux text-color:bord)])
-::  ==
+++  enjs-state
+  |=  [=apps:micro =new:micro]
+  ^-  json
+  :-  %a
+  :~
+    :-  %a
+    %+  turn
+      ~(tap in apps)
+    |=  p=path
+    (path:enjs:format p)
+    ::
+    :-  %a
+    %+  turn
+      ~(tap in new)
+    |=  [=id:micro =path =priority:micro]
+    :-  %a
+    :~
+        [%s (scot %da id)]
+        (path:enjs:format path)
+        (numb:enjs:format priority)
+    ==
+  ==
 --
