@@ -93,7 +93,6 @@
       [%http-response *]
     that
   ==
-  ::(emit update)
 ::
 ++  poke
   |=  =cage
