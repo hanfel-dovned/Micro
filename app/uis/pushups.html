@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pushups</title>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #000;
+      color: #fff;
+    }
+    .center-content {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 5px;
+      border: 5px solid #fff;
+    }
+    h1, h2 {
+      font-size: 2.5em;
+      text-transform: uppercase;
+    }
+    p {
+      font-size: 1.2em;
+    }
+    input[type="number"] {
+      width: 100px;
+      height: 45px;
+      font-size: 1.2em;
+    }
+    button {
+      background-color: rgb(53, 53, 53);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      text-align: center;
+      text-decoration: none;
+      font-size: 1.2em;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+    #entry, #leaderboard {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="center-content">
+    <div id="entry">
+      <h1>Do a set of pushups right now.</h1>
+      <p>Enter how many you did. Be honest. This will be sent to your friends.</p>
+      <input type="number" id="pushups-count" min="0">
+      <button onclick="submitPushups()">Push</button>
+    </div>
+
+    <div id="leaderboard">
+      <h2>Today's Leaderboard</h2>
+      <div id="daily-leaderboard"></div>
+
+      <h2>Lifetime Leaderboard</h2>
+      <div id="lifetime-leaderboard"></div>
+    </div>
+  </div>
+
+  <script>
+    let state;
+
+    // Show entry form initially
+    document.getElementById('entry').style.display = 'block';
+
+    // Load initial state
+    getState().then((s) => {
+      state = s;
+    });
+
+    async function getState() {
+      const response = await fetch('/apps/micro-pushups/state');
+      return response.json();
+    }
+
+    function submitPushups() {
+      const countElem = document.getElementById('pushups-count');
+      const count = countElem.value ? parseInt(countElem.value) : 0;
+
+      // Hide entry form and show leaderboard
+      document.getElementById('entry').style.display = 'none';
+      document.getElementById('leaderboard').style.display = 'block';
+
+      // Update local state
+      state[1][state[0]][0] += count;
+      state[1][state[0]][1] += count;
+
+      // Send this info back to the Urbit ship
+      fetch('/apps/micro-pushups', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({"push": count })
+      });
+
+      // Render leaderboards
+      renderLeaderboards();
+    }
+
+    function renderLeaderboards() {
+      const dailyDiv = document.getElementById('daily-leaderboard');
+      const lifetimeDiv = document.getElementById('lifetime-leaderboard');
+
+      // Clear existing content
+      dailyDiv.innerHTML = "";
+      lifetimeDiv.innerHTML = "";
+
+      const leaderboard = Object.entries(state[1]).sort((a, b) => b[1][1] - a[1][1]);
+
+      leaderboard.forEach(([ship, [daily, lifetime]]) => {
+        const dailyP = document.createElement('p');
+        dailyP.className = 'score';
+        dailyP.appendChild(document.createTextNode(`${ship}: ${daily}`));
+        dailyDiv.appendChild(dailyP);
+
+        const lifetimeP = document.createElement('p');
+        lifetimeP.className = 'score';
+        lifetimeP.appendChild(document.createTextNode(`${ship}: ${lifetime}`));
+        lifetimeDiv.appendChild(lifetimeP);
+      });
+    }
+
+  </script>
+</body>
+</html>

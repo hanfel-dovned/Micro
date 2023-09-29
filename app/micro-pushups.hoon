@@ -1,6 +1,6 @@
 /-  pushups, pals
 /+  dbug, default-agent, server, schooner
-::  /*  ui  %html  /app/pushups/html
+/*  ui  %html  /app/uis/pushups/html
 ::
 |%
 ::
@@ -85,9 +85,15 @@
     :*  %pass  /pals  %agent
         [our.bowl %pals]  %watch  /targets
     ==
+    ::
     :*  %pass   /eyre/connect   
         %arvo  %e  %connect
         `/apps/micro-pushups  %micro-pushups
+    ==
+    ::
+    :*  %pass  /micro  %agent
+        [our.bowl %micro]  %poke
+        %micro-action  !>([%link /apps/micro-pushups])
     ==
   ==
 ::
@@ -119,8 +125,8 @@
   |=  =cage
   ^+  that
   ?+    -.cage  !!
-    ::  %handle-http-request
-    ::(handle-http !<([@ta =inbound-request:eyre] +.cage))
+      %handle-http-request
+    (handle-http !<([@ta =inbound-request:eyre] +.cage))
     ::
       %pushups-action
     (handle-action !<(action:pushups +.cage))    
@@ -193,57 +199,61 @@
       that(scores (~(put by scores) src.bowl score.upd))
     ==
   ==
-::++  handle-http
-::  |=  [eyre-id=@ta =inbound-request:eyre]
-::  ^+  that
-::  =/  ,request-line:server
-::    (parse-request-line:server url.request.inbound-request)
-::  =+  send=(cury response:schooner eyre-id)
-::  ::
-::  ?.  authenticated.inbound-request
-::    (emil (flop (send [302 ~ [%login-redirect './apps/micro']])))
-::  ?+    method.request.inbound-request
-::    (emil (flop (send [405 ~ [%stock ~]])))
-::    ::
-::    ::    %'POST'
-::    ::  =/  json  (de-json:html q.u.body.request.inbound-request)
-::    ::  =/  act  (dejs-action +.json)
-::    ::  (handle-action act)
-::    ::
-::      %'GET'
-::    %-  emil
-::    %-  flop
-::    %-  send
-::    ?+    site  [404 ~ [%plain "404 - Not Found"]]
-::    ::
-::        [%apps %micro ~]
-::      [200 ~ [%html ui]]
-::    ::
-::        [%apps %micro %state ~]
-::      [200 ~ [%json (enjs-state [apps new])]]
-::    ==
-::  ==
+++  handle-http
+  |=  [eyre-id=@ta =inbound-request:eyre]
+  ^+  that
+  =/  ,request-line:server
+    (parse-request-line:server url.request.inbound-request)
+  =+  send=(cury response:schooner eyre-id)
+  ::
+  ?.  authenticated.inbound-request
+    (emil (flop (send [302 ~ [%login-redirect './apps/micro']])))
+  ?+    method.request.inbound-request
+    (emil (flop (send [405 ~ [%stock ~]])))
+    ::
+      %'POST'
+    ?~  body.request.inbound-request  !!
+    ::  [(send [405 ~ [%stock ~]]) state]
+    =/  json  (de:json:html q.u.body.request.inbound-request)
+    =/  act  (dejs-action +.json)
+    (handle-action act)
+    ::
+      %'GET'
+    %-  emil
+    %-  flop
+    %-  send
+    ?+    site  [404 ~ [%plain "404 - Not Found"]]
+    ::
+        [%apps %micro-pushups ~]
+      [200 ~ [%html ui]]
+    ::
+        [%apps %micro-pushups %state ~]
+      [200 ~ [%json (enjs-state scores)]]
+    ==
+  ==
 ::
-::++  enjs-state
-::  |=  [=apps:micro =new:micro]
-::  ^-  json
-::  :-  %a
-::  :~
-::    :-  %a
-::    %+  turn
-::      ~(tap in apps)
-::    |=  p=path
-::    (path:enjs:format p)
-::    ::
-::    :-  %a
-::    %+  turn
-::      ~(tap in new)
-::    |=  [=id:micro =path =priority:micro]
-::    :-  %a
-::    :~
-::        [%s (scot %da id)]
-::        (path:enjs:format path)
-::        (numb:enjs:format priority)
-::    ==
-::  ==
+++  enjs-state
+  =,  enjs:format
+  |=  [=scores:pushups]
+  ^-  json
+  :-  %a
+  :-  [%s (scot %p our.bowl)]
+  %+  turn
+    ~(tap by scores)
+  |=  [p=@p =score:pushups]
+  %+  frond  (scot %p p)
+  :-  %a
+  :~
+      (numb day:score)
+      (numb life:score)
+  ==
+::
+++  dejs-action
+  =,  dejs:format
+  |=  jon=json
+  ^-  action:pushups
+  %.  jon
+  %-  of
+  :~  [%push ni]
+  ==
 --
