@@ -1,5 +1,5 @@
-/-  pushups
-|_  act=action:pushups
+/-  doodle
+|_  act=action:doodle
 ++  grad  %noun
 ++  grow
   |%
@@ -7,6 +7,6 @@
   --
 ++  grab
   |%
-  ++  noun  action:pushups
+  ++  noun  action:doodle
   --
 --

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>View Doodle</title>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas {
+      border: 2px solid #000;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="doodleTitle"></h1>
+  <p id="doodleAuthor"></p>
+  <canvas id="pixelCanvas" width="300" height="300"></canvas>
+</body>
+</html>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const canvas = document.getElementById("pixelCanvas");
+    const ctx = canvas.getContext("2d");
+    const cellSize = 10; // Each cell is 10x10 pixels
+
+    // Fetch the doodle data from the Urbit ship
+    fetch(`${window.location.href}/state`)
+    .then(response => response.json())
+    .then(data => {
+      const [title, author, ...pixels] = data;
+
+      // Set title and author
+      document.getElementById("doodleTitle").innerText = title;
+      document.getElementById("doodleAuthor").innerText = `By ${author}`;
+
+      let drawOrder = 1;
+
+      function drawNextPixel() {
+        const index = pixels.findIndex(p => p === drawOrder);
+        if (index === -1) return;
+
+        const row = Math.floor(index / 30);
+        const col = index % 30;
+
+        ctx.fillStyle = "#000"; // Change this for different colors
+        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+
+        drawOrder++;
+        requestAnimationFrame(drawNextPixel);
+      }
+
+      drawNextPixel();
+    });
+  });
+</script>

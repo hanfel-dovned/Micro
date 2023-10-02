@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Doodle</title>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas {
+      border: 2px solid #000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="pixelCanvas" width="300" height="300"></canvas>
+  <input type="text" id="titleBox" placeholder="Title">
+  <button id="publishButton">Publish</button>
+  <div id="linkList"></div>
+</body>
+</html>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+  let pixelGrid = new Array(900).fill(0);
+  let drawing = false;
+  let drawOrder = 1;
+
+  // Fetch initial state from Urbit ship
+  fetch("/apps/micro-doodle/state").then(response => response.json()).then(initialState => {
+    // Render links
+    initialState.reverse().forEach(([id, title, author]) => {
+      const linkElem = document.createElement("a");
+      linkElem.href = `/apps/micro-doodle/${id}`;
+      linkElem.innerHTML = `${title} - ${author}<br>`;
+      document.getElementById("linkList").appendChild(linkElem);
+    });
+  });
+
+  document.getElementById("publishButton").addEventListener("click", function() {
+    const title = document.getElementById("titleBox").value;
+    post("new", [title, pixelGrid]);
+  });
+
+  function post(tag, data) {
+    fetch('/apps/micro-doodle', {
+      method: 'POST',
+      body: JSON.stringify({ [tag]: data })
+    })
+    location.reload();
+  }
+
+  const canvas = document.getElementById("pixelCanvas");
+  const ctx = canvas.getContext("2d");
+  const cellSize = 10; // Each cell is 10x10 pixels
+
+  // For mobile touch events
+  canvas.addEventListener("touchstart", startDraw);
+  canvas.addEventListener("touchmove", draw);
+  canvas.addEventListener("touchend", endDraw);
+
+  // For mouse events
+  canvas.addEventListener("mousedown", startDraw);
+  canvas.addEventListener("mousemove", draw);
+  canvas.addEventListener("mouseup", endDraw);
+
+  function startDraw(e) {
+    drawing = true;
+    draw(e); // To draw immediately when you start
+  }
+
+  function endDraw() {
+    drawing = false;
+  }
+
+  function draw(e) {
+    if (!drawing) return;
+
+    let x, y;
+
+    if (e.touches) {
+      x = e.touches[0].clientX - canvas.getBoundingClientRect().left;
+      y = e.touches[0].clientY - canvas.getBoundingClientRect().top;
+    } else {
+      x = e.clientX - canvas.getBoundingClientRect().left;
+      y = e.clientY - canvas.getBoundingClientRect().top;
+    }
+
+    const col = Math.floor(x / cellSize);
+    const row = Math.floor(y / cellSize);
+    const index = row * 30 + col; // Convert 2D coordinates to 1D index
+
+    if (pixelGrid[index] === 0) {
+      pixelGrid[index] = drawOrder++;
+      ctx.fillStyle = "#000"; // Change this for different colors
+      ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+    }
+  }
+});
+</script>
