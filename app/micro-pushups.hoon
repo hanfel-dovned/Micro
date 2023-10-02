@@ -53,7 +53,7 @@
   |=  [=wire =sign:agent:gall]
   ^-  (quip card _this)
   =^  cards  state  abet:(agent:hc [wire sign])
-  `this
+  [cards this]
 ::
 ++  on-arvo
   |=  [=wire =sign-arvo]
@@ -118,7 +118,7 @@
   |=  them=ship
   ^-  ?
   =/  friends
-    .^((set ship) %gx /(scot %p our.bowl)/pals/(scot %da now.bowl)/mutuals)
+    .^((set ship) %gx /(scot %p our.bowl)/pals/(scot %da now.bowl)/mutuals/noun)
   (~(has in friends) them)
 :: 
 ++  poke

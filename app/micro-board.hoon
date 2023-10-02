@@ -177,6 +177,10 @@
             %board-update 
             !>(`update`[%new-board (~(got by bords) our.bowl)])
         ==  
+        :*  %pass  /boards-in
+            %agent  [src.bowl %micro-board]
+            %watch  /board-out
+        ==
     ==
   ==
 ::

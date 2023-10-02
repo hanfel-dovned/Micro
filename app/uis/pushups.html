@@ -91,8 +91,12 @@
       document.getElementById('leaderboard').style.display = 'block';
 
       // Update local state
-      state[1][state[0]][0] += count;
-      state[1][state[0]][1] += count;
+      for (let i = 1; i < state.length; i++) {
+          if (state[i][state[0]]) {
+              state[i][state[0]][0] += count;
+              state[i][state[0]][1] += count;
+          }
+      }
 
       // Send this info back to the Urbit ship
       fetch('/apps/micro-pushups', {
@@ -115,7 +119,20 @@
       dailyDiv.innerHTML = "";
       lifetimeDiv.innerHTML = "";
 
-      const leaderboard = Object.entries(state[1]).sort((a, b) => b[1][1] - a[1][1]);
+      const combined = {};
+
+      // Combine all the ship's scores from all objects into one
+      for (let i = 1; i < state.length; i++) {
+        for (let ship in state[i]) {
+          if (!combined[ship]) {
+            combined[ship] = [0, 0];
+          }
+          combined[ship][0] += state[i][ship][0];
+          combined[ship][1] += state[i][ship][1];
+        }
+      }
+
+      const leaderboard = Object.entries(combined).sort((a, b) => b[1][1] - a[1][1]);
 
       leaderboard.forEach(([ship, [daily, lifetime]]) => {
         const dailyP = document.createElement('p');
