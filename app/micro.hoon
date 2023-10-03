@@ -1,6 +1,7 @@
 /-  micro
 /+  dbug, default-agent, server, schooner
 /*  ui  %html  /app/micro/html
+/*  welcome  %html  /app/uis/welcome/html
 ::
 |%
 ::
@@ -78,7 +79,13 @@
 ::
 ++  init
   ^+  that
-  (emit [%pass /eyre/connect %arvo %e %connect `/apps/micro %micro])
+  %-  emil 
+  :~  [%pass /eyre/connect %arvo %e %connect `/apps/micro %micro]
+      :*  %pass  /micro  %agent
+          [our.bowl %micro]  %poke
+          %micro-action  !>([%bump /apps/micro/welcome 1])
+      ==
+  ==
 ::
 ++  load
   |=  =vase
@@ -164,6 +171,9 @@
     ::
         [%apps %micro %state ~]
       [200 ~ [%json (enjs-state [apps new])]]
+    ::
+        [%apps %micro %welcome ~]
+      [200 ~ [%html welcome]]
     ==
   ==
 ::
