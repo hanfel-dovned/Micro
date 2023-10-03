@@ -11,7 +11,7 @@
       justify-content: flex-start; /* Align to the top */
       font-size: 40px; /* Increase base font size for better readability on mobile */
       padding-top: 20px; /* Add some padding at the top */
-      overflow: hidden; /* Make it scrollable */
+      overflow: auto; /* Make it scrollable */
     }
 
     canvas {
@@ -119,14 +119,26 @@
   const cellSize = 10; // Each cell is 10x10 pixels
 
   // For mobile touch events
-  canvas.addEventListener("touchstart", startDraw);
+  canvas.addEventListener("touchstart", function(e) {
+    startDraw(e);
+    document.body.style.overflow = 'hidden';  // Disable scrolling
+  });
   canvas.addEventListener("touchmove", draw);
-  canvas.addEventListener("touchend", endDraw);
+  canvas.addEventListener("touchend", function() {
+    endDraw();
+    document.body.style.overflow = 'auto';  // Enable scrolling
+  });
 
   // For mouse events
-  canvas.addEventListener("mousedown", startDraw);
+  canvas.addEventListener("mousedown", function(e) {
+    startDraw(e);
+    document.body.style.overflow = 'hidden';  // Disable scrolling
+  });
   canvas.addEventListener("mousemove", draw);
-  canvas.addEventListener("mouseup", endDraw);
+  canvas.addEventListener("mouseup", function() {
+    endDraw();
+    document.body.style.overflow = 'auto';  // Enable scrolling
+  });
 
   function startDraw(e) {
     drawing = true;
