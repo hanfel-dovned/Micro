@@ -12,15 +12,16 @@
       font-size: 40px; /* Increase base font size for better readability on mobile */
       padding-top: 20px; /* Add some padding at the top */
       overflow: auto; /* Make it scrollable */
-      background-color: #a5b0ff;
+      background-color: #92deff;
+      font-family: 'Arial';
     }
 
     canvas {
       margin-top: 10px;
-      border: 4px solid #000; /* Increase border size for better visibility */
+      border: 5px solid #000; /* Increase border size for better visibility */
       width: 800px; /* Fixed width */
       height: 1200px; /* Fixed height */
-      border-radius: 10px;
+      border-radius: 40px;
       background-color: white;
     }
 
@@ -29,6 +30,8 @@
       padding: 10px; /* Add padding for easier tapping */
       margin: 20px; /* Add some margin for separation */
       width: 500px; /* Almost full width */
+      border: 3px solid #000;
+      border-radius: 10px;
     }
 
     button {
@@ -36,33 +39,42 @@
       padding: 10px; /* Add more padding for easier tapping */
       margin: 20px; /* Add some margin for separation */
       width: 250px; /* Almost full width */
-      background-color: #7a7a7a; /* Set a background color */
-      color: white; /* Set text color */
-      border: none; /* Remove default border */
-      border-radius: 5px; /* Add rounded corners */
+      background-color: #ffffff; /* Set a background color */
+      color: rgb(0, 0, 0); /* Set text color */
+      border: 3px solid #000; /* Remove default border */
+      border-radius: 10px; /* Add rounded corners */
       cursor: pointer; /* Change cursor on hover */
-      transition: background-color 0.3s ease; /* Add transition for hover effect */
     }
 
     button:hover {
-      background-color: #424242; /* Change background color on hover */
+      background-color: #b5b5b5; /* Change background color on hover */
+    }
+
+    /* Media query for desktop screens */
+    @media (min-width: 1024px) {
+      body, html {
+        overflow: scroll; /* Make it scrollable */
+      }
     }
 
     #linkList {
       margin-top: 20px; /* Add some space above the link list */
-      width: 90%; /* Almost full width */
+      width: 100%; /* Almost full width */
       overflow-y: scroll; /* Make it scrollable */
+      text-align: center;
     }
 
     #linkList a {
       display: inline-block; /* Make them block-level elements */
       padding: 10px; /* Add padding for easier tapping */
       margin: 5px; /* Add some margin for separation */
-      background-color: #f1f1f1; /* Add a background color */
-      color: #333; /* Set text color */
+      background-color: #ffffff; /* Add a background color */
+      color: #000000; /* Set text color */
       text-decoration: none; /* Remove underline */
       border-radius: 5px; /* Add rounded corners */
-      width: calc(100% - 20px); /* Take up almost full width, accounting for padding */
+      width: 70%; /* Take up almost full width, accounting for padding */
+      border: 2px solid #000;
+      text-align: center;
     }
 
     #linkList a:hover {
