@@ -48,6 +48,7 @@
       margin: 10px 20px; /* Add some margin */
       margin-top: 20px;
       border-radius: 5px;
+      text-align: center;
     }
 
     button {
@@ -67,6 +68,10 @@
 
     #entry, #leaderboard {
       display: none;
+    }
+
+    #lifetime-header {
+      margin-top: 100px; /* Adds space above the lifetime leaderboard */
     }
 
     /* Media query for larger screens */
@@ -91,7 +96,7 @@
       <h2>Today's Leaderboard</h2>
       <div id="daily-leaderboard"></div>
 
-      <h2>Lifetime Leaderboard</h2>
+      <h2 id="lifetime-header">Lifetime Leaderboard</h2>
       <div id="lifetime-leaderboard"></div>
     </div>
   </div>
