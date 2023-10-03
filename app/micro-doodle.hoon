@@ -2,6 +2,7 @@
 /+  dbug, default-agent, server, schooner
 /*  ui  %html  /app/uis/doodle/html
 /*  view-ui  %html  /app/uis/doodle-view/html
+/*  gallery-ui  %html  /app/uis/doodle-gallery/html
 ::
 |%
 ::
@@ -230,7 +231,10 @@
     ::
         [%apps %micro-doodle %state ~]
       [200 ~ [%json (enjs-state gallery)]]
-      ::
+    ::
+        [%apps %micro-doodle %gallery ~]
+      [200 ~ [%html gallery-ui]]
+    ::
         [%apps %micro-doodle @ ~]
       [200 ~ [%html view-ui]]
     ::

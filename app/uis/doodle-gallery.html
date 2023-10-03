@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>View Doodle</title>
+  <title>Doodle Gallery</title>
   <style>
     body, html {
       margin: 0;
@@ -11,7 +11,7 @@
       justify-content: flex-start; /* Align to the top */
       font-size: 40px; /* Increase base font size for better readability on mobile */
       padding-top: 20px; /* Add some padding at the top */
-      overflow: hidden; /* Make it scrollable */
+      overflow: auto; /* Make it scrollable */
       background-color: #a5b0ff;
     }
 
@@ -41,23 +41,17 @@
       border: none; /* Remove default border */
       border-radius: 5px; /* Add rounded corners */
       cursor: pointer; /* Change cursor on hover */
+      transition: background-color 0.3s ease; /* Add transition for hover effect */
     }
 
     button:hover {
       background-color: #424242; /* Change background color on hover */
     }
 
-    h1 {
-      margin: 10px;
-      text-align: center;
-      color: black;
-    }
-
     #linkList {
       margin-top: 20px; /* Add some space above the link list */
       width: 90%; /* Almost full width */
-      max-height: 400px; /* Set a maximum height */
-      overflow-y: auto; /* Make it scrollable */
+      overflow-y: scroll; /* Make it scrollable */
     }
 
     #linkList a {
@@ -84,46 +78,19 @@
   </style>
 </head>
 <body>
-  <h1 id="doodleTitle"></h1>
-  <p id="doodleAuthor"></p>
-  <canvas id="pixelCanvas" width="800" height="1000"></canvas>
-  <button id="returnHome" onclick="window.location.href = '/apps/micro-doodle';">Home</button>
+  <div id="linkList"></div>
+
+  <script>
+    // Fetch initial state from Urbit ship
+    fetch("/apps/micro-doodle/state").then(response => response.json()).then(initialState => {
+      // Render links
+      initialState.reverse().forEach(([id, title, author]) => {
+        const linkElem = document.createElement("a");
+        linkElem.href = `/apps/micro-doodle/${id}`;
+        linkElem.innerHTML = `${title} - ${author}<br>`;
+        document.getElementById("linkList").appendChild(linkElem);
+      });
+    });
+  </script>
 </body>
 </html>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const canvas = document.getElementById("pixelCanvas");
-    const ctx = canvas.getContext("2d");
-    const cellSize = 10; // Each cell is 10x10 pixels
-
-    // Fetch the doodle data from the Urbit ship
-    fetch(`${window.location.href}/state`)
-    .then(response => response.json())
-    .then(data => {
-      const [title, author, ...pixels] = data;
-
-      // Set title and author
-      document.getElementById("doodleTitle").innerText = title;
-      document.getElementById("doodleAuthor").innerText = `By ${author}`;
-
-      let drawOrder = 1;
-
-      function drawNextPixel() {
-        const index = pixels.findIndex(p => p === drawOrder);
-        if (index === -1) return;
-
-        const row = Math.floor(index / 80);
-        const col = index % 80;
-
-        ctx.fillStyle = "#000"; // Change this for different colors
-        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
-
-        drawOrder++;
-        requestAnimationFrame(drawNextPixel);
-      }
-
-      drawNextPixel();
-    });
-  });
-</script>

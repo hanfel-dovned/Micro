@@ -12,6 +12,7 @@
       font-size: 40px; /* Increase base font size for better readability on mobile */
       padding-top: 20px; /* Add some padding at the top */
       overflow: auto; /* Make it scrollable */
+      background-color: #a5b0ff;
     }
 
     canvas {
@@ -20,6 +21,7 @@
       width: 800px; /* Fixed width */
       height: 1200px; /* Fixed height */
       border-radius: 10px;
+      background-color: white;
     }
 
     input[type="text"], button {
@@ -81,7 +83,7 @@
   <canvas id="pixelCanvas" width="800" height="1200"></canvas>
   <input type="text" id="titleBox" placeholder="Title">
   <button id="publishButton">Publish</button>
-  <div id="linkList"></div>
+  <button id="galleryButton" onclick="window.location.href='/apps/micro-doodle/gallery'">Gallery</button>
 </body>
 </html>
 <script>
@@ -89,17 +91,6 @@
   let pixelGrid = new Array(9600).fill(0);
   let drawing = false;
   let drawOrder = 1;
-
-  // Fetch initial state from Urbit ship
-  fetch("/apps/micro-doodle/state").then(response => response.json()).then(initialState => {
-    // Render links
-    initialState.reverse().forEach(([id, title, author]) => {
-      const linkElem = document.createElement("a");
-      linkElem.href = `/apps/micro-doodle/${id}`;
-      linkElem.innerHTML = `${title} - ${author}<br>`;
-      document.getElementById("linkList").appendChild(linkElem);
-    });
-  });
 
   document.getElementById("publishButton").addEventListener("click", function() {
     const title = document.getElementById("titleBox").value;
