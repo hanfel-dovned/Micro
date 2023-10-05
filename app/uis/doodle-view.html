@@ -37,7 +37,7 @@
     button {
       font-size: 1.2em; /* Increase font size */
       padding: 10px; /* Add more padding for easier tapping */
-      margin: 20px; /* Add some margin for separation */
+      margin: 40px; /* Add some margin for separation */
       width: 250px; /* Almost full width */
       background-color: #ffffff; /* Set a background color */
       color: rgb(0, 0, 0); /* Set text color */
@@ -68,7 +68,7 @@
   <h1 id="doodleTitle"></h1>
   <p id="doodleAuthor"></p>
   <canvas id="pixelCanvas" width="800" height="1200"></canvas>
-  <button id="returnHome" onclick="window.location.href = '/apps/micro-doodle';">Home</button>
+  <button id="returnHome" onclick="window.location.href = '/apps/micro-doodle';">Doodle</button>
 </body>
 </html>
 
@@ -92,21 +92,52 @@ document.addEventListener("DOMContentLoaded", function() {
     pixels.sort((a, b) => a[2] - b[2]);
 
     let drawOrder = 1;
+    let isDrawing = true; // Flag to toggle between drawing and undrawing
+    const pixelsPerFrame = 2; // Number of pixels to draw per frame
 
     function drawNextPixel() {
-      const pixel = pixels.find(p => p[2] === drawOrder);
-      if (!pixel) return;
+      for (let i = 0; i < pixelsPerFrame; i++) {
+        const pixel = pixels.find(p => p[2] === drawOrder);
 
-      const [col, row] = pixel;
+        if (!pixel) {
+          if (isDrawing) {
+            // Pause for a few seconds before starting to undraw
+            setTimeout(() => {
+              isDrawing = false;
+              drawOrder = 1;
+              requestAnimationFrame(drawNextPixel);
+            }, 6000); // Pause for 3000 milliseconds (3 seconds)
+          } else {
+            // Pause for a few seconds before starting to draw again
+            setTimeout(() => {
+              isDrawing = true;
+              drawOrder = 1;
+              ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+              requestAnimationFrame(drawNextPixel);
+            }, 1000); // Pause for 3000 milliseconds (3 seconds)
+          }
+          return;
+        }
 
-      ctx.fillStyle = "#000"; // Change this for different colors
-      ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        const [col, row] = pixel;
 
-      drawOrder++;
+        if (isDrawing) {
+          ctx.fillStyle = "#000"; // Drawing color
+        } else {
+          ctx.fillStyle = "#FFF"; // Undrawing color (same as canvas background)
+        }
+
+        drawOrder++;
+
+        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+      }
+
       requestAnimationFrame(drawNextPixel);
     }
 
     drawNextPixel();
+
+
   });
 });
 </script>
