@@ -58,7 +58,8 @@
 ++  on-arvo
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)
-  `this
+  =^  cards  state  abet:(arvo:hc [wire sign-arvo])
+  [cards this]
 ::
 ++  on-watch
   |=  =path
@@ -82,6 +83,8 @@
   =>  that(scores (~(put by scores) our.bowl [0 0]))
   %-  emil
   :~
+    behn
+    ::
     :*  %pass  /pals  %agent
         [our.bowl %pals]  %watch  /targets
     ==
@@ -96,6 +99,12 @@
         %micro-action  !>([%link /apps/micro-pushups])
     ==
   ==
+::
+++  behn
+  ^-  card
+  =/  today=@da
+    (yule [d=d:(yell now.bowl) h=0 m=0 s=0 f=~[0x0]])
+  [%pass /timer %arvo %b %wait (add today ~d1)]
 ::
 ++  load
   |=  =vase
@@ -199,6 +208,21 @@
       that(scores (~(put by scores) src.bowl score.upd))
     ==
   ==
+::
+++  arvo
+  |=  [=wire =sign-arvo]
+  ^+  that
+  ?+    wire  !!
+      [%timer ~]
+    ?+    sign-arvo  !!
+        [%behn %wake *]
+      =.  that  (emit behn)
+      =/  old  mine
+      =/  reset  [0 life.old]
+      that(scores (~(put by scores) our.bowl reset))
+    ==
+  ==
+::
 ++  handle-http
   |=  [eyre-id=@ta =inbound-request:eyre]
   ^+  that
