@@ -85,10 +85,10 @@
       ::    [our.bowl %micro]  %poke
       ::    %micro-action  !>([%bump '/apps/micro/welcome'])
       ::==
-      :*  %pass  /micro  %agent
-          [our.bowl %micro]  %poke
-          %micro-action  !>([%link '/apps/groups'])
-      ==
+      :::*  %pass  /micro  %agent
+      ::    [our.bowl %micro]  %poke
+      ::    %micro-action  !>([%link '/apps/groups'])
+      ::==
   ==
 ::
 ++  load

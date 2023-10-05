@@ -1,5 +1,5 @@
 :~  title+'Micro'
-    info+'A feed for apps.'
+    info+'A new experience every moment.'
     color+0xff.4444
     base+'micro'
     site+/apps/micro
