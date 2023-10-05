@@ -277,6 +277,17 @@
         return 'ontouchstart' in window;
       }
 
+      // Set initial transform property based on device type
+      if (isMobile()) {
+        iframes.forEach(iframe => {
+          iframe.style.transform = "translateX(0)";
+        });
+      } else {
+        iframes.forEach(iframe => {
+          iframe.style.transform = "translate(-50%, -50%)";
+        });
+      }
+
       if (isMobile()) {
         let startX = 0;
         let endX = 0;
