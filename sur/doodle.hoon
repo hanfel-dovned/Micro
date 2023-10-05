@@ -1,7 +1,7 @@
 |%
 +$  id  @da
 +$  title  =@t
-+$  pixel  @ud
++$  pixel  [x=@ud y=@ud order=@ud]
 +$  pixels  (list pixel)
 +$  drawing  [author=@p =title =pixels]
 +$  gallery  (map =id =drawing)

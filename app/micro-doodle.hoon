@@ -268,7 +268,12 @@
   :-  [%s (scot %p author:drawing)]
   %+  turn  pixels:drawing
   |=  =pixel:doodle
-  (numb pixel)
+  :-  %a
+  :~  
+      (numb x.pixel)
+      (numb y.pixel)
+      (numb order.pixel)
+  ==
 ::
 ++  dejs-action
   =,  dejs:format
@@ -276,6 +281,6 @@
   ^-  action:doodle
   %.  jon
   %-  of
-  :~  [%new (at ~[so (ar ni)])]
+  :~  [%new (at ~[so (ar (at ~[ni ni ni]))])]
   ==
 --

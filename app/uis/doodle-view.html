@@ -67,44 +67,46 @@
 <body>
   <h1 id="doodleTitle"></h1>
   <p id="doodleAuthor"></p>
-  <canvas id="pixelCanvas" width="800" height="1000"></canvas>
+  <canvas id="pixelCanvas" width="800" height="1200"></canvas>
   <button id="returnHome" onclick="window.location.href = '/apps/micro-doodle';">Home</button>
 </body>
 </html>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const canvas = document.getElementById("pixelCanvas");
-    const ctx = canvas.getContext("2d");
-    const cellSize = 10; // Each cell is 10x10 pixels
+document.addEventListener("DOMContentLoaded", function() {
+  const canvas = document.getElementById("pixelCanvas");
+  const ctx = canvas.getContext("2d");
+  const cellSize = 10; // Each cell is 10x10 pixels
 
-    // Fetch the doodle data from the Urbit ship
-    fetch(`${window.location.href}/state`)
-    .then(response => response.json())
-    .then(data => {
-      const [title, author, ...pixels] = data;
+  // Fetch the doodle data from the Urbit ship
+  fetch(`${window.location.href}/state`)
+  .then(response => response.json())
+  .then(data => {
+    const [title, author, ...pixels] = data;
 
-      // Set title and author
-      document.getElementById("doodleTitle").innerText = title;
-      document.getElementById("doodleAuthor").innerText = `by ${author}`;
+    // Set title and author
+    document.getElementById("doodleTitle").innerText = title;
+    document.getElementById("doodleAuthor").innerText = `by ${author}`;
 
-      let drawOrder = 1;
+    // Sort pixels by draw order
+    pixels.sort((a, b) => a[2] - b[2]);
 
-      function drawNextPixel() {
-        const index = pixels.findIndex(p => p === drawOrder);
-        if (index === -1) return;
+    let drawOrder = 1;
 
-        const row = Math.floor(index / 80);
-        const col = index % 80;
+    function drawNextPixel() {
+      const pixel = pixels.find(p => p[2] === drawOrder);
+      if (!pixel) return;
 
-        ctx.fillStyle = "#000"; // Change this for different colors
-        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+      const [col, row] = pixel;
 
-        drawOrder++;
-        requestAnimationFrame(drawNextPixel);
-      }
+      ctx.fillStyle = "#000"; // Change this for different colors
+      ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
 
-      drawNextPixel();
-    });
+      drawOrder++;
+      requestAnimationFrame(drawNextPixel);
+    }
+
+    drawNextPixel();
   });
+});
 </script>
