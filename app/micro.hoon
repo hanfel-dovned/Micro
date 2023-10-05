@@ -81,10 +81,10 @@
   ^+  that
   %-  emil 
   :~  [%pass /eyre/connect %arvo %e %connect `/apps/micro %micro]
-      :*  %pass  /micro  %agent
-          [our.bowl %micro]  %poke
-          %micro-action  !>([%bump /apps/micro/welcome 1])
-      ==
+      :::*  %pass  /micro  %agent
+      ::    [our.bowl %micro]  %poke
+      ::    %micro-action  !>([%bump '/apps/micro/welcome'])
+      ::==
   ==
 ::
 ++  load
@@ -119,19 +119,19 @@
   ?-    -.act
       %link
     %=  that
-      apps  (~(put in apps) path.act)
-      new   (~(put in new) [now.bowl path.act 1])
+      apps  (~(put in apps) url.act)
+      new   (~(put in new) url.act)
     ==
     ::
       %unlink
-    that(apps (~(del in apps) path.act))
+    that(apps (~(del in apps) url.act))
     ::
       %bump
     ?<  (~(has in ignored) dap.bowl)
-    that(new (~(put in new) [now.bowl path.act priority.act]))
+    that(new (~(put in new) url.act))
     ::
       %view
-    that(new (~(del in new) app.act))
+    that(new (~(del in new) url.act))
     ::
       %view-all
     that(new ~)
@@ -155,10 +155,14 @@
   ?+    method.request.inbound-request
     (emil (flop (send [405 ~ [%stock ~]])))
     ::
-    ::    %'POST'
-    ::  =/  json  (de-json:html q.u.body.request.inbound-request)
-    ::  =/  act  (dejs-action +.json)
-    ::  (handle-action act)
+        %'POST'
+      ?~  body.request.inbound-request  !!
+      =/  json  (de:json:html q.u.body.request.inbound-request)
+      =/  act  (dejs-action +.json)
+      =.  that  (handle-action act)
+      %-  emil
+      %-  flop
+      (send [200 ~ [%json (enjs-state [apps new])]])
     ::
       %'GET'
     %-  emil
@@ -185,18 +189,22 @@
     :-  %a
     %+  turn
       ~(tap in apps)
-    |=  p=path
-    (path:enjs:format p)
+    |=  =url:micro
+    [%s url]
     ::
     :-  %a
     %+  turn
       ~(tap in new)
-    |=  [=id:micro =path =priority:micro]
-    :-  %a
-    :~
-        [%s (scot %da id)]
-        (path:enjs:format path)
-        (numb:enjs:format priority)
-    ==
+    |=  =url:micro
+    [%s url]
+  ==
+::
+++  dejs-action
+  =,  dejs:format
+  |=  jon=json
+  ^-  action:micro
+  %.  jon
+  %-  of
+  :~  [%view so]
   ==
 --

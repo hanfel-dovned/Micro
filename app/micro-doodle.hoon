@@ -94,7 +94,7 @@
     ::
     :*  %pass  /micro  %agent
         [our.bowl %micro]  %poke
-        %micro-action  !>([%link /apps/micro-doodle])
+        %micro-action  !>([%link '/apps/micro-doodle'])
     ==
   ==
 ::

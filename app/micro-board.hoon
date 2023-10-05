@@ -30,7 +30,7 @@
     ::
     :*  %pass  /micro  %agent
         [our.bowl %micro]  %poke
-        %micro-action  !>([%link /apps/micro-board])
+        %micro-action  !>([%link '/apps/micro-board'])
     ==
   ==
 ::

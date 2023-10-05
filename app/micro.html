@@ -90,19 +90,46 @@
     const leftMargin = document.getElementById("leftMargin");
     const rightMargin = document.getElementById("rightMargin");
     let initialTranslateX = 0;
+    let apps = []; 
+    let news = [];
     
-    getState()
-      .then((state) => renderPage(state))
+    getState().then((state) => renderPage(state))
 
     async function getState() {
       const response = await fetch('/apps/micro/state')
       return response.json()
     }
 
-    function renderPage(state)
-    {
+    async function postView(url) {
+      const response = await fetch('/apps/micro', {
+                          method: 'POST',
+                          body: JSON.stringify({"view": url})
+                      })
+      return response.json()
+    } 
+
+    function updateAppsAndNews(state) {
       apps = state[0];
       news = state[1];
+    }
+
+    function getRandomElement(arr) {
+      const randomIndex = Math.floor(Math.random() * arr.length);
+      return arr[randomIndex];
+    }
+
+    function renderPage(state)
+    {
+      updateAppsAndNews(state);
+      //apps = state[0]
+      //news = state[1]
+
+      let history = [];
+      let historyIndex = -1;
+      let currentPath = "";
+      let newPath = "";
+
+      let viewNews = 0;
 
       window.addEventListener('load', () => {
         if (isMobile()) {
@@ -112,30 +139,31 @@
         }
       });
 
-      function preloadNextIframe() {
-        newIndex = currentIndex + 1;
-        if (newIndex >= apps.length) newIndex = 0;
-        iframes[1 - activeIframe].src = apps[newIndex];
-      }
+      //Preload next iframe, for a speedy transition if the user clicks right
+      function preloadIframe() {
+        if(historyIndex == 0 || historyIndex == -1) //load the feed if we're on the last history item or in feed mode
+        {
+          if(news.length == 0)
+          {  
+            newPath = getRandomElement(apps);
+            while(currentPath == newPath)
+              newPath = getRandomElement(apps);
 
-      function preloadPreviousIframe() {
-        newIndex = currentIndex - 1;
-        if (newIndex < 0) newIndex = apps.length - 1;
-        iframes[1 - activeIframe].src = apps[newIndex];
+            iframes[1 - activeIframe].src = newPath; 
+            currentPath = newPath;
+          }
+          else
+          {
+            iframes[1 - activeIframe].src = news[0];
+            currentPath = news[0];
+            viewNews = 1;
+          }
+        }
+        else  //load the next history item
+          iframes[1 - activeIframe].src = history[historyIndex - 1];
       }
 
       function changeIframe(increment) {
-          if (increment > 0) {
-              currentIndex++;
-              if (currentIndex >= apps.length) currentIndex = 0;
-          } else {
-              currentIndex--;
-              if (currentIndex < 0) currentIndex = apps.length - 1;
-          }
-
-          if (iframes[1 - activeIframe].src !== apps[currentIndex]) {
-              iframes[1 - activeIframe].src = apps[currentIndex];
-          }
 
           if (isMobile()) {
             iframes[activeIframe].style.transition = "transform .25s";
@@ -150,11 +178,45 @@
               iframes[activeIframe].className = "";
               iframes[1 - activeIframe].className = "hidden";
 
-              if (increment > 0) {
-                  preloadNextIframe();
-              } else {
-                  preloadPreviousIframe();
+              if(increment == 1 && historyIndex == -1) //next app, feed mode
+              {
+                history.unshift(iframes[1 - activeIframe].src) //prepend previous src to history
               }
+              else if(increment == 1 && historyIndex >= 0) //next app, history mode
+              {
+                historyIndex -= 1;
+              }
+              else if(increment == -1)  //left click goes into history
+              {
+                if(historyIndex == -1)  //if we're in feed mode, we need to still record the current iframe into history
+                {
+                  history.unshift(iframes[1 - activeIframe].src) //prepend previous src to history
+                  historyIndex += 1;  //skip the iframe we just prepended
+                }
+
+                if(historyIndex < history.length - 1)
+                  historyIndex += 1;
+
+                iframes[activeIframe].src = history[historyIndex]; //override the iframe, because it had preloaded the app to the right
+              }
+
+              //send %view poke to %micro
+              if(viewNews == 1)
+              {
+                postView(currentPath).then(newState => {
+                  updateAppsAndNews(newState);
+                  preloadIframe(); 
+                });
+              }
+              else
+              {
+                getState().then(newState => {
+                  updateAppsAndNews(newState);
+                  preloadIframe(); 
+                });
+              }
+
+              viewNews = 0;
 
               if (isMobile()) {
                 iframes[activeIframe].style.transition = "none";
@@ -188,20 +250,28 @@
       rightMargin.addEventListener('click', () => changeIframe(1));
 
       leftMargin.addEventListener('mouseover', () => {
-        leftMargin.style.backgroundColor = "lightblue";
-        leftMargin.querySelector('.arrow').style.display = "block";
+        if(history.length != 0 && historyIndex < history.length - 1)
+        {
+          leftMargin.style.backgroundColor = "lightblue";
+          leftMargin.querySelector('.arrow').style.display = "block";
+        }
       });
       leftMargin.addEventListener('mouseout', () => {
         leftMargin.style.backgroundColor = "transparent";
         leftMargin.querySelector('.arrow').style.display = "none";
       });
       leftMargin.addEventListener('mousedown', () => {
-        leftMargin.style.backgroundColor = "#79a";
+        if(history.length != 0 && historyIndex < history.length - 1)
+          leftMargin.style.backgroundColor = "#79a";
       });
       leftMargin.addEventListener('mouseup', () => {
-        leftMargin.style.backgroundColor = "lightblue";
+        if(history.length != 0 && historyIndex < history.length - 1)
+          leftMargin.style.backgroundColor = "lightblue";
       });
-      leftMargin.addEventListener('click', () => changeIframe(-1));
+      leftMargin.addEventListener('click', () => {
+        if(history.length != 0 && historyIndex < history.length - 1)
+          changeIframe(-1)
+      });
 
       function isMobile() {
         return 'ontouchstart' in window;
@@ -251,8 +321,22 @@
         });
       }
 
-      preloadNextIframe();
-      changeIframe(1);
+      if(news.length == 0)
+      {
+        iframes[activeIframe].src = getRandomElement(apps);
+        preloadIframe(); 
+      }
+      else
+      {
+        iframes[activeIframe].src = news[0];
+        currentPath = news[0];
+
+        postView(currentPath).then(newState => {
+          updateAppsAndNews(newState);
+          preloadIframe(); 
+        });
+      }
+      
     }
   </script>
 </body>

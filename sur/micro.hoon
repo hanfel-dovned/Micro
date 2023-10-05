@@ -1,14 +1,15 @@
 |%
 +$  id  @da
++$  url  @t
 +$  priority  @ud
-+$  apps  (set =path)
-+$  new  (set [=id =path =priority])
++$  apps  (set =url)
++$  new  (set =url)
 +$  ignored  (set agent=@tas)
 +$  action  
-  $%  [%link =path]
-      [%unlink =path]
-      [%bump =path =priority]
-      [%view app=[=id =path =priority]]
+  $%  [%link =url]
+      [%unlink =url]
+      [%bump =url]
+      [%view =url]
       [%view-all ~]
       [%ignore agent=@tas]
       [%unignore agent=@tas]
