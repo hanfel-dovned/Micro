@@ -157,6 +157,7 @@
   =+  send=(cury response:schooner eyre-id)
   ::
   ?:  =(site [%apps %micro %manifest ~])
+    ~&  "Serving Manifest"
     (emil (flop (send [200 ~ [%application-json manifest]])))
   ?.  authenticated.inbound-request
     (emil (flop (send [302 ~ [%login-redirect './apps/micro']])))

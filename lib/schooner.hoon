@@ -79,7 +79,7 @@
       %application-json
     :_  `(as-octs:mimes:html p.resource)
     :-  http-status
-    (weld headers ['content-type'^'application/json']~)
+    (weld headers ['content-type'^'applic']~)
   ==
 ::
 ++  stock-error
