@@ -19,6 +19,7 @@
     [%html h=cord]            [%login-redirect l=cord]
     [%redirect o=cord]        [%plain p=tape]
     [%none ~]                 [%stock ~]
+    [%text-javascript p=@]
   ==
 ::
 +$  http-status  @ud
@@ -71,6 +72,10 @@
       %stock
     (stock-error headers http-status)
     ::
+      %text-javascript
+    :_  `(as-octs:mimes:html p.resource)
+    :-  http-status
+    (weld headers ['content-type'^'text/javascript']~)
   ==
 ::
 ++  stock-error

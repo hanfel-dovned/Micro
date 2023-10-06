@@ -2,5 +2,5 @@
   "name": "Micro",
   "short_name": "Micro",
   "start_url": "/apps/micro",
-  "display": "standalone",
+  "display": "fullscreen"
 }

@@ -85,6 +85,16 @@
     </div>
   </div>
   <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/apps/micro/sw.js')
+      .then(function(registration) {
+        console.log('Service Worker Registered:', registration);
+      })
+      .catch(function(error) {
+        console.log('Service Worker Registration Failed:', error);
+      });
+    }
+    
     let currentIndex = 0;
     const iframes = [document.getElementById("iframe1"), document.getElementById("iframe2")];
     let activeIframe = 0;

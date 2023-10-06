@@ -2,6 +2,8 @@
 /+  dbug, default-agent, server, schooner
 /*  ui  %html  /app/micro/html
 /*  welcome  %html  /app/uis/welcome/html
+/*  manifest  %webmanifest  /app/manifest/webmanifest
+/*  sw  %js  /app/sw/js
 ::
 |%
 ::
@@ -182,6 +184,12 @@
     ::
         [%apps %micro %welcome ~]
       [200 ~ [%html welcome]]
+    ::
+        [%apps %micro %manifest ~]
+      [200 ~ [%html manifest]]
+    ::
+        [%apps %micro %sw ~]
+      [200 ~ [%text-javascript sw]]
     ==
   ==
 ::
