@@ -19,7 +19,7 @@
     [%html h=cord]            [%login-redirect l=cord]
     [%redirect o=cord]        [%plain p=tape]
     [%none ~]                 [%stock ~]
-    [%text-javascript p=@]
+    [%text-javascript p=@]    [%manifest p=@]
   ==
 ::
 +$  http-status  @ud
@@ -54,7 +54,6 @@
     :_  ~
     :-  http-status
     (weld headers [['location' -]]~)
-    
     ::
       %redirect
     :_  ~
@@ -76,6 +75,11 @@
     :_  `(as-octs:mimes:html p.resource)
     :-  http-status
     (weld headers ['content-type'^'text/javascript']~)
+    ::
+      %manifest
+    :_  `(as-octs:mimes:html p.resource)
+    :-  http-status
+    (weld headers ['content-type'^'application/manifest+json']~)
   ==
 ::
 ++  stock-error
