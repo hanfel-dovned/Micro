@@ -156,6 +156,8 @@
     (parse-request-line:server url.request.inbound-request)
   =+  send=(cury response:schooner eyre-id)
   ::
+  ?:  =(site [%apps %micro %manifest ~])
+    (emil (flop (send [200 ~ [%application-json manifest]])))
   ?.  authenticated.inbound-request
     (emil (flop (send [302 ~ [%login-redirect './apps/micro']])))
   ?+    method.request.inbound-request
