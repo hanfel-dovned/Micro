@@ -186,7 +186,7 @@
       [200 ~ [%html welcome]]
     ::
         [%apps %micro %manifest ~]
-      [200 ~ [%manifest manifest]]
+      [200 ~ [%application-json manifest]]
     ::
         [%apps %micro %sw ~]
       [200 ~ [%text-javascript sw]]
