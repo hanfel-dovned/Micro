@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Micro Write View</title>
+</head>
+<body>
+  <div id="content"></div>
+
+  <script>
+    // Fetch the data
+    fetch(`${window.location.href}/state`)
+    .then(response => response.json())
+    .then(data => {
+      const [prompt, author, text] = data;
+      const contentDiv = document.getElementById("content");
+      contentDiv.innerHTML = `
+        <h1>Prompt: ${prompt}</h1>
+        <h2>Author: ${author}</h2>
+        <p>${text}</p>
+      `;
+    });
+  </script>
+</body>
+</html>
