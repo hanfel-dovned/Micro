@@ -56,6 +56,11 @@
       transform: translateX(-50%) scale(0.9);
     }
 
+    #switchButton.active {
+      background-color: #bcbcbc;
+      transform: translateX(-50%) scale(0.9);
+    }
+
     #staticCanvas {
       position: absolute;
       top: 0;
@@ -211,7 +216,7 @@
       // Get the switchButton element
       const switchButton = document.getElementById("switchButton"); 
       
-      document.getElementById("switchButton").addEventListener("mousedown", () => {
+      switchButton.addEventListener("mousedown", () => {
         iframes[activeIframe].classList.add('shake');
 
         setTimeout(() => {
@@ -219,10 +224,26 @@
         }, 200); 
       });
 
-      document.getElementById("switchButton").addEventListener("mouseup", () => {
+      switchButton.addEventListener("mouseup", () => {
         changeIframe();
       });
-    }
+
+      switchButton.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        iframes[activeIframe].classList.add('shake');
+        switchButton.classList.add('active');
+
+          setTimeout(() => {
+            iframes[activeIframe].classList.remove('shake');
+          }, 200); 
+      }, { passive: false });
+
+      switchButton.addEventListener("touchend", (e) => {
+        switchButton.classList.remove('active');
+        e.preventDefault();
+        changeIframe();
+      }, { passive: false });
+  }
   </script>
 </body>
 </html>
