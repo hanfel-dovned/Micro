@@ -219,6 +219,7 @@
       =.  that  (emit behn)
       =/  old  mine
       =/  reset  [0 life.old]
+      =<  (tell /out)
       that(scores (~(put by scores) our.bowl reset))
     ==
   ==
