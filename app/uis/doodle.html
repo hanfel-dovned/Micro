@@ -16,28 +16,29 @@
     }
 
     canvas {
-      margin-top: 10px;
-      border: 5px solid #000; /* Increase border size for better visibility */
-      width: 800px; /* Fixed width */
-      height: 1200px; /* Fixed height */
-      border-radius: 40px;
+      margin-top: 2vh;
+      border: 0.5vh solid #000;
+      width: 85vw;
+      height: 72vh;
+      margin: 1vh;
+      border-radius: 2vh;
       background-color: white;
     }
 
     input[type="text"], button {
-      font-size: 1.2em; /* Increase font size */
-      padding: 10px; /* Add padding for easier tapping */
-      margin: 20px; /* Add some margin for separation */
-      width: 500px; /* Almost full width */
-      border: 3px solid #000;
-      border-radius: 10px;
+      font-size: 2vh;
+      padding: 1vh;
+      margin: 1vh;
+      width: 70vw;
+      border: 0.3vh solid #000;
+      border-radius: 1vh;
     }
 
     button {
-      font-size: 1.2em; /* Increase font size */
-      padding: 10px; /* Add more padding for easier tapping */
-      margin: 20px; /* Add some margin for separation */
-      width: 250px; /* Almost full width */
+      font-size: 2.5vh; /* Increase font size */
+      margin: 1vh; /* Add some margin for separation */
+      width: 50vw;
+      height: 5vh;
       background-color: #ffffff; /* Set a background color */
       color: rgb(0, 0, 0); /* Set text color */
       border: 3px solid #000; /* Remove default border */
@@ -47,13 +48,6 @@
 
     button:hover {
       background-color: #b5b5b5; /* Change background color on hover */
-    }
-
-    /* Media query for desktop screens */
-    @media (min-width: 1024px) {
-      body, html {
-        overflow: scroll; /* Make it scrollable */
-      }
     }
 
   </style>
@@ -91,7 +85,7 @@
 
   const canvas = document.getElementById("pixelCanvas");
   const ctx = canvas.getContext("2d");
-  const cellSize = 10; // Each cell is 10x10 pixels
+  let cellSize = canvas.width / 80; // Adjust this based on your grid size
 
   // For mobile touch events
   canvas.addEventListener("touchstart", function(e) {
@@ -129,12 +123,16 @@
 
     let x, y;
 
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
     if (e.touches) {
-      x = e.touches[0].clientX - canvas.getBoundingClientRect().left;
-      y = e.touches[0].clientY - canvas.getBoundingClientRect().top;
+      x = (e.touches[0].clientX - rect.left) * scaleX;
+      y = (e.touches[0].clientY - rect.top) * scaleY;
     } else {
-      x = e.clientX - canvas.getBoundingClientRect().left;
-      y = e.clientY - canvas.getBoundingClientRect().top;
+      x = (e.clientX - rect.left) * scaleX;
+      y = (e.clientY - rect.top) * scaleY;
     }
 
     const col = Math.floor(x / cellSize);
@@ -147,5 +145,24 @@
       ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
     }
   }
+
+
+
+  // For mobile touch events
+  canvas.addEventListener("touchstart", function(e) {
+    e.preventDefault();
+    startDraw(e);
+    document.body.style.overflow = 'hidden';
+  });
+  canvas.addEventListener("touchmove", function(e) {
+    e.preventDefault();
+    draw(e);
+  });
+  canvas.addEventListener("touchend", function(e) {
+    e.preventDefault();
+    endDraw();
+    document.body.style.overflow = 'auto';
+  });
+
 });
 </script>

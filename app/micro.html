@@ -217,11 +217,11 @@
       const switchButton = document.getElementById("switchButton"); 
       
       switchButton.addEventListener("mousedown", () => {
-        iframes[activeIframe].classList.add('shake');
+        //iframes[activeIframe].classList.add('shake');
 
-        setTimeout(() => {
+        /*setTimeout(() => {
           iframes[activeIframe].classList.remove('shake');
-        }, 200); 
+        }, 200); */
       });
 
       switchButton.addEventListener("mouseup", () => {
@@ -230,7 +230,7 @@
 
       switchButton.addEventListener("touchstart", (e) => {
         e.preventDefault();
-        iframes[activeIframe].classList.add('shake');
+        //iframes[activeIframe].classList.add('shake');
         switchButton.classList.add('active');
 
           setTimeout(() => {
