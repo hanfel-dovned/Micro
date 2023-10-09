@@ -92,6 +92,12 @@
         %arvo  %e  %connect
         `/apps/micro-write  %micro-write
     ==
+    ::
+    :*  %pass  /micro  %agent
+        [our.bowl %micro]  %poke
+        %micro-action  
+        !>([%bump '/apps/micro-write'])
+    ==
   ==
 ::
 ++  behn
@@ -112,7 +118,7 @@
       :*  %pass  /micro  %agent
           [our.bowl %micro]  %poke
           %micro-action  
-          !>([%bump /apps/micro-write])
+          !>([%bump '/apps/micro-write'])
       ==
     ==
   ==
@@ -213,11 +219,12 @@
       ?>  =(p.cage.sign %write-update)
       =/  upd  !<(update:write q.cage.sign)
       =.  that  (shelve entry.upd)
+      =/  url  (crip (weld "/apps/micro-write/" (trip (scot %da now.bowl))))
       %-  emit
       :*  %pass  /micro  %agent
           [our.bowl %micro]  %poke
           %micro-action  
-          !>([%bump /apps/micro-write/(scot %da now.bowl)])
+          !>([%bump url])
       ==
     ==
   ==

@@ -194,11 +194,12 @@
       ?>  =(p.cage.sign %doodle-update)
       =/  upd  !<(update:doodle q.cage.sign)
       =.  that  (hang drawing.upd)
+      =/  url  (crip (weld "/apps/micro-doodle/" (trip (scot %da now.bowl))))
       %-  emit
       :*  %pass  /micro  %agent
           [our.bowl %micro]  %poke
           %micro-action  
-          !>([%bump /apps/micro-doodle/(scot %da now.bowl)])
+          !>([%bump url])
       ==
     ==
   ==
