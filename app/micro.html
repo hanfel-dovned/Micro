@@ -9,80 +9,82 @@
       padding: 0;
       height: 100%;
       width: 100%;
-      overflow: hidden;
-    }
-    #container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      width: 100vw;
-      position: relative;
-    }
-    #leftMargin, #rightMargin {
-      width: 19%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      z-index: 2;
-    }
-    #leftMargin {
-      left: 0;
-    }
-    #rightMargin {
-      right: 0;
-    }
-    iframe {
-      border: 1px solid black;
-      border-radius: 10px;
-      height: 90%;
-      width: 60%;
-      z-index: 1;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-    .hidden {
-      visibility: hidden;
-    }
-    .arrow {
-      display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 24px;
+      background-color:#ffffff;
     }
 
-    @media (max-width: 1000px) {
-      iframe {
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 90%;
-        border-radius: 10;
-      }
-      #container {
-        height: 100%;
-        width: 100%;
-      }
-      #leftMargin, #rightMargin {
-        display: none;
-      }
+    #container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
     }
+
+    iframe {
+      width: 100%;
+      height: 90vh;
+      border: none;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 1rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #switchButton {
+      width: 10vh;
+      height: 10vh;
+      background-color: rgb(244, 244, 244);
+      border-radius: 50%; /* Makes the button a circle */
+      border: 3px solid black;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%); /* Center the button horizontally */
+    }
+
+    #switchButton:hover {
+      background-color: rgb(224, 224, 224);
+    }
+
+    #switchButton:active {
+      background-color: #bcbcbc;
+      transform: translateX(-50%) scale(0.9);
+    }
+
+    #staticCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 90vh;
+      z-index: 2;  /* higher than the iframe */
+    }
+
+    .shake {
+      animation: shake 0.2s ease-in-out;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(0px, 0px); }
+      25% { transform: translate(-1px, 1px); }
+      50% { transform: translate(1px, -1px); }
+      75% { transform: translate(-1px, 1px); }
+      100% { transform: translate(0px, 0px); }
+    }
+
   </style>
 </head>
 <body>
   <div id="container">
-    <div id="leftMargin">
-      <div class="arrow">&#9664;</div>
-    </div>
     <iframe id="iframe1"></iframe>
     <iframe id="iframe2" class="hidden"></iframe>
-    <div id="rightMargin">
-      <div class="arrow">&#9658;</div>
-    </div>
+    <button id="switchButton"></button>
+    <canvas id="staticCanvas" class="hidden"></canvas>
   </div>
   <script>
     if ('serviceWorker' in navigator) {
@@ -98,8 +100,6 @@
     let currentIndex = 0;
     const iframes = [document.getElementById("iframe1"), document.getElementById("iframe2")];
     let activeIframe = 0;
-    const leftMargin = document.getElementById("leftMargin");
-    const rightMargin = document.getElementById("rightMargin");
     let initialTranslateX = 0;
     let apps = []; 
     let news = [];
@@ -135,8 +135,6 @@
       //apps = state[0]
       //news = state[1]
 
-      let history = [];
-      let historyIndex = -1;
       let currentPath = "";
       let newPath = "";
 
@@ -150,202 +148,53 @@
         }
       });
 
-      //Preload next iframe, for a speedy transition if the user clicks right
       function preloadIframe() {
-        if(historyIndex == 0 || historyIndex == -1) //load the feed if we're on the last history item or in feed mode
-        {
-          if(news.length == 0)
-          {  
+        if(news.length == 0)
+        {  
+          newPath = getRandomElement(apps);
+          while(currentPath == newPath)
             newPath = getRandomElement(apps);
-            while(currentPath == newPath)
-              newPath = getRandomElement(apps);
 
-            iframes[1 - activeIframe].src = newPath; 
-            currentPath = newPath;
+          iframes[1 - activeIframe].src = newPath; 
+          currentPath = newPath;
+        }
+        else
+        {
+          iframes[1 - activeIframe].src = news[0];
+          currentPath = news[0];
+          viewNews = 1;
+        }
+      }
+
+      function changeIframe() {
+          activeIframe = 1 - activeIframe;
+          iframes[activeIframe].className = "";
+          iframes[1 - activeIframe].className = "hidden";
+
+          //send %view poke to %micro
+          if(viewNews == 1)
+          {
+            postView(currentPath).then(newState => {
+              updateAppsAndNews(newState);
+              preloadIframe(); 
+            });
           }
           else
           {
-            iframes[1 - activeIframe].src = news[0];
-            currentPath = news[0];
-            viewNews = 1;
-          }
-        }
-        else  //load the next history item
-          iframes[1 - activeIframe].src = history[historyIndex - 1];
-      }
-
-      function changeIframe(increment) {
-
-          if (isMobile()) {
-            iframes[activeIframe].style.transition = "transform .25s";
-            iframes[activeIframe].style.transform = `translateX(${increment > 0 ? '-100%' : '100%'})`;
-          } else {
-            iframes[activeIframe].style.transition = "transform .25s";
-            iframes[activeIframe].style.transform = `translate(${increment > 0 ? '-160%' : '160%'}, -50%)`;
+            getState().then(newState => {
+              updateAppsAndNews(newState);
+              preloadIframe(); 
+            });
           }
 
-          setTimeout(() => {
-              activeIframe = 1 - activeIframe;
-              iframes[activeIframe].className = "";
-              iframes[1 - activeIframe].className = "hidden";
-
-              if(increment == 1 && historyIndex == -1) //next app, feed mode
-              {
-                history.unshift(iframes[1 - activeIframe].src) //prepend previous src to history
-              }
-              else if(increment == 1 && historyIndex >= 0) //next app, history mode
-              {
-                historyIndex -= 1;
-              }
-              else if(increment == -1)  //left click goes into history
-              {
-                if(historyIndex == -1)  //if we're in feed mode, we need to still record the current iframe into history
-                {
-                  history.unshift(iframes[1 - activeIframe].src) //prepend previous src to history
-                  historyIndex += 1;  //skip the iframe we just prepended
-                }
-
-                if(historyIndex < history.length - 1)
-                  historyIndex += 1;
-
-                iframes[activeIframe].src = history[historyIndex]; //override the iframe, because it had preloaded the app to the right
-              }
-
-              //send %view poke to %micro
-              if(viewNews == 1)
-              {
-                postView(currentPath).then(newState => {
-                  updateAppsAndNews(newState);
-                  preloadIframe(); 
-                });
-              }
-              else
-              {
-                getState().then(newState => {
-                  updateAppsAndNews(newState);
-                  preloadIframe(); 
-                });
-              }
-
-              viewNews = 0;
-
-              if (isMobile()) {
-                iframes[activeIframe].style.transition = "none";
-                iframes[activeIframe].style.transform = `translateX(${increment > 0 ? '100%' : '-100%'})`;
-              } else {
-                iframes[activeIframe].style.transition = "none";
-                iframes[activeIframe].style.transform = `translate(${increment > 0 ? '160%' : '-160%'}, -50%)`;
-              }
-
-              setTimeout(() => {
-                  iframes[activeIframe].style.transition = "transform .25s";
-                  iframes[activeIframe].style.transform = isMobile() ? "translateX(0)" : "translate(-50%, -50%)";
-              }, 50);
-          }, 250);
+          viewNews = 0
       }
 
-      rightMargin.addEventListener('mouseover', () => {
-        rightMargin.style.backgroundColor = "lightgreen";
-        rightMargin.querySelector('.arrow').style.display = "block";
-      });
-      rightMargin.addEventListener('mouseout', () => {
-        rightMargin.style.backgroundColor = "transparent";
-        rightMargin.querySelector('.arrow').style.display = "none";
-      });
-      rightMargin.addEventListener('mousedown', () => {
-        rightMargin.style.backgroundColor = "#7a9";
-      });
-      rightMargin.addEventListener('mouseup', () => {
-        rightMargin.style.backgroundColor = "lightgreen";
-      });
-      rightMargin.addEventListener('click', () => changeIframe(1));
-
-      leftMargin.addEventListener('mouseover', () => {
-        if(history.length != 0 && historyIndex < history.length - 1)
-        {
-          leftMargin.style.backgroundColor = "lightblue";
-          leftMargin.querySelector('.arrow').style.display = "block";
-        }
-      });
-      leftMargin.addEventListener('mouseout', () => {
-        leftMargin.style.backgroundColor = "transparent";
-        leftMargin.querySelector('.arrow').style.display = "none";
-      });
-      leftMargin.addEventListener('mousedown', () => {
-        if(history.length != 0 && historyIndex < history.length - 1)
-          leftMargin.style.backgroundColor = "#79a";
-      });
-      leftMargin.addEventListener('mouseup', () => {
-        if(history.length != 0 && historyIndex < history.length - 1)
-          leftMargin.style.backgroundColor = "lightblue";
-      });
-      leftMargin.addEventListener('click', () => {
-        if(history.length != 0 && historyIndex < history.length - 1)
-          changeIframe(-1)
-      });
-
-      function isMobile() {
-        return 'ontouchstart' in window;
-      }
-
-      // Set initial transform property based on device type
-      if (isMobile()) {
-        iframes.forEach(iframe => {
-          iframe.style.transform = "translateX(0)";
-        });
-      } else {
-        iframes.forEach(iframe => {
-          iframe.style.transform = "translate(-50%, -50%)";
-        });
-      }
-
-      if (isMobile()) {
-        let startX = 0;
-        let endX = 0;
-
-        // Add touch event listeners
-        document.addEventListener('touchstart', function(e) {
-          startX = e.touches[0].clientX;
-          initialTranslateX = parseFloat(iframes[activeIframe].style.transform.match(/-?\d+\.?\d*/)) || 0;
-        }, false);
-
-        document.addEventListener('touchmove', function(e) {
-          endX = e.touches[0].clientX;
-          let deltaX = endX - startX;
-
-          iframes[activeIframe].style.transition = "none";
-          iframes[activeIframe].style.transform = `translateX(${initialTranslateX + deltaX}px)`;
-        }, false);
-
-        document.addEventListener('touchend', function(e) {
-          endX = e.changedTouches[0].clientX;
-          if (startX - endX > 100) { 
-            changeIframe(1);
-          } else if (endX - startX > 100) { 
-            changeIframe(-1);
-          } else {
-            iframes[activeIframe].style.transition = "transform .25s";
-            iframes[activeIframe].style.transform = `translateX(${initialTranslateX}px)`;
-          }
-        }, false);
-      } else {
-        document.addEventListener('keydown', function(event) {
-          switch (event.keyCode) {
-            case 37: // Left arrow key
-              changeIframe(-1);
-              break;
-            case 39: // Right arrow key
-              changeIframe(1);
-              break;
-            default:
-              break;
-          }
-        });
-      }
-
+      //Page load
       if(news.length == 0)
       {
-        iframes[activeIframe].src = getRandomElement(apps);
+        currentPath = getRandomElement(apps);
+        iframes[activeIframe].src = currentPath;
         preloadIframe(); 
       }
       else
@@ -359,6 +208,20 @@
         });
       }
       
+      // Get the switchButton element
+      const switchButton = document.getElementById("switchButton"); 
+      
+      document.getElementById("switchButton").addEventListener("mousedown", () => {
+        iframes[activeIframe].classList.add('shake');
+
+        setTimeout(() => {
+          iframes[activeIframe].classList.remove('shake');
+        }, 200); 
+      });
+
+      document.getElementById("switchButton").addEventListener("mouseup", () => {
+        changeIframe();
+      });
     }
   </script>
 </body>

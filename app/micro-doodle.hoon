@@ -198,7 +198,7 @@
       :*  %pass  /micro  %agent
           [our.bowl %micro]  %poke
           %micro-action  
-          !>([%bump /apps/micro-doodle/(scot %da now.bowl) 1])
+          !>([%bump /apps/micro-doodle/(scot %da now.bowl)])
       ==
     ==
   ==
