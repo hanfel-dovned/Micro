@@ -98,7 +98,7 @@
   ==
 ::
 ++  handle-action
-  |=  [id=@da act=action:creator]
+  |=  [=id:creator act=action:creator]
   ^+  that
   =/  app  
     ^-  app:creator  
@@ -109,6 +109,7 @@
       %replace-text
     (~(put by county.app) src.bowl text.act)
     ::
+    ::  value as @ud isn't supported yet, so this isn't useful yet
       %add
     =/  old  (~(get by county:app) src.bowl)
     =/  num  
@@ -119,7 +120,7 @@
 ++  handle-creation
   |=  ui=@t
   ^+  that
-  that(apps (~(put by apps) now.bowl [ui ~ ~]))
+  that(apps (~(put by apps) 'test app' [ui ~ ~]))
   ::send to relay here. need to get my url from eyre
 ::
 ++  handle-http
@@ -129,9 +130,6 @@
     (parse-request-line:server url.request.inbound-request)
   =+  send=(cury response:schooner eyre-id)
   ::
-  =/  auth  authenticated.inbound-request
-  =/  redirect  
-    (emil (flop (send [302 ~ [%login-redirect './apps/micro']])))    
   ?+    method.request.inbound-request
     (emil (flop (send [405 ~ [%stock ~]])))
     ::
@@ -140,25 +138,22 @@
     ?+    site  (emil (flop (send [404 ~ [%plain "404 - Not Found"]])))
     ::
         [%apps %creator ~]
-      ?.  auth  redirect  ::  EAUTH must be me
+      ?>  =(our.bowl src.bowl)
       =/  json  (de:json:html q.u.body.request.inbound-request)
-      ~&  json
       =/  ui  (dejs-creation +.json)
-      ~&  ui
       =.  that  (handle-creation ui)
-      =/  url  
-        %-  crip 
-        ['/' 'apps' '/' 'creator' '/' (scot %da now.bowl) ~]
-      (emil (flop (send [200 ~ [%redirect url]])))
+      ::=/  url  
+      ::  %-  crip 
+      ::  ['/' 'apps' '/' 'creator' '/' (scot %da now.bowl) ~]
+      (emil (flop (send [200 ~ [%redirect './test app']])))
     ::
         [%apps %creator @ ~]
-      !!
-      ::?.  auth  redirect  ::EAUTH HERE
-      ::=/  json  (de:json:html q.u.body.request.inbound-request)
-      ::=/  act  (dejs-action +.json)
-      ::=/  id  (slav %da +14:site)
-      ::=.  that  (handle-action [id act])
-      ::(emil (flop (send [200 ~ [%none ~]])))
+      ?<  (gth src.bowl 0xffff.ffff)
+      =/  json  (de:json:html q.u.body.request.inbound-request)
+      =/  act  (dejs-action +.json)
+      =/  id  +14:site
+      =.  that  (handle-action [id act])
+      (emil (flop (send [200 ~ [%none ~]])))
     ==
     ::
       %'GET'
@@ -168,12 +163,16 @@
     ?+    site  [404 ~ [%plain "404 - Not Found"]]
     ::
         [%apps %creator ~]
-      ::?.  auth  redirect
+      ?>  =(our.bowl src.bowl)
       [200 ~ [%html ui]]
     ::
-        [%apps %creator @ %app ~]
-      ::?.  auth  redirect  ::EAUTH HERE
-      =/  id  (slav %da +14:site)
+        [%apps %creator @ ~]
+      ?:  (gth src.bowl 0xffff.ffff)
+        =/  redirect
+          %-  crip 
+          ['/' 'apps' '/' 'creator' '/' +14:site '&eauth' ~]
+        [302 ~ [%login-redirect redirect]]   
+      =/  id  +14:site
       =/  app
         ^-  app:creator
         (~(got by apps) id)
@@ -181,8 +180,8 @@
       [200 ~ [%html fe]]
     ::
         [%apps %creator @ %state ~]
-      ::?.  auth  redirect  ::EAUTH HERE
-      =/  id  (slav %da +14:site)
+      ?<  (gth src.bowl 0xffff.ffff)
+      =/  id  +14:site
       =/  app
         ^-  app:creator
         (~(got by apps) id)
@@ -193,7 +192,7 @@
 ::
 ++  enjs-county
   =,  enjs:format
-  |=  [=county:creator]
+  |=  =county:creator
   ^-  json
   :-  %a
   :::-  [%s (scot %p our.bowl)]
@@ -203,14 +202,16 @@
   %+  frond  (scot %p p)
   [%s value]
 ::
-::++  dejs-action
-::  =,  dejs:format
-::  |=  jon=json
-::  ^-  action:pushups
-::  %.  jon
-::  %-  of
-::  :~  [%push ni]
-::  ==
+++  dejs-action
+  =,  dejs:format
+  |=  jon=json
+  ^-  action:creator
+  %.  jon
+  %-  of
+  :~  [%replace-text so]
+      [%add ni]
+  ==
+::
 ++  dejs-creation
   =,  dejs:format
   |=  jon=json
