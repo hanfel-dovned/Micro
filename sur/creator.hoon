@@ -1,5 +1,5 @@
 |%
-+$  county  (map ship=@p value=$%(@ud @t))  :: state has counties
++$  county  (map ship=@p value=@t)  :: state has counties
 +$  app  [ui=@t =county transforms=(set transform)]
 +$  apps  (map id=@da =app)
 +$  transform

@@ -117,9 +117,9 @@
   ==
 ::
 ++  handle-creation
-  |=  =app:creator
+  |=  ui=@t
   ^+  that
-  that(apps (~(put by apps) now.bowl app))
+  that(apps (~(put by apps) now.bowl [ui ~ ~]))
   ::send to relay here. need to get my url from eyre
 ::
 ++  handle-http
@@ -136,18 +136,20 @@
     (emil (flop (send [405 ~ [%stock ~]])))
     ::
       %'POST'
+    ?~  body.request.inbound-request  !!
     ?+    site  (emil (flop (send [404 ~ [%plain "404 - Not Found"]])))
     ::
-        [%apps %creator %creation ~]
-      !!
-      ::?.  auth  redirect
-      ::=/  json  (de:json:html q.u.body.request.inbound-request)
-      ::=/  gen  (dejs-creation +.json)
-      ::=.  that  (handle-creation gen)
-      ::=/  url  
-      ::  %-  crip 
-      ::  ['/' 'apps' '/' 'creator' '/' (scot %da now.bowl) ~]
-      ::(emil (flop (send [200 ~ [%redirect url]])))
+        [%apps %creator ~]
+      ?.  auth  redirect  ::  EAUTH must be me
+      =/  json  (de:json:html q.u.body.request.inbound-request)
+      ~&  json
+      =/  ui  (dejs-creation +.json)
+      ~&  ui
+      =.  that  (handle-creation ui)
+      =/  url  
+        %-  crip 
+        ['/' 'apps' '/' 'creator' '/' (scot %da now.bowl) ~]
+      (emil (flop (send [200 ~ [%redirect url]])))
     ::
         [%apps %creator @ ~]
       !!
@@ -169,36 +171,38 @@
       ::?.  auth  redirect
       [200 ~ [%html ui]]
     ::
-    ::    [%apps %creator @ ~]
-    ::  ?.  auth  redirect  ::EAUTH HERE
-    ::  =/  id  (slav %da +14:site)
-    ::  =/  fe  ui:(~(got by apps) id)
-    ::  [200 ~ [%html fe]]
-    ::::
-    ::    [%apps %creator @ %state ~]
-    ::  ?.  auth  redirect  ::EAUTH HERE
-    ::  =/  id  (slav %da +14:site)
-    ::  =/  ct  county:(~(got by apps) id)
-    ::  [200 ~ [%json (enjs-county ct)]]
+        [%apps %creator @ %app ~]
+      ::?.  auth  redirect  ::EAUTH HERE
+      =/  id  (slav %da +14:site)
+      =/  app
+        ^-  app:creator
+        (~(got by apps) id)
+      =/  fe  ui.app
+      [200 ~ [%html fe]]
+    ::
+        [%apps %creator @ %state ~]
+      ::?.  auth  redirect  ::EAUTH HERE
+      =/  id  (slav %da +14:site)
+      =/  app
+        ^-  app:creator
+        (~(got by apps) id)
+      =/  ct  county.app
+      [200 ~ [%json (enjs-county ct)]]
     ==
   ==
 ::
-::++  enjs-county
-::  =,  enjs:format
-::  |=  [=scores:pushups]
-::  ^-  json
-::  :-  %a
-::  :-  [%s (scot %p our.bowl)]
-::  %+  turn
-::    ~(tap by scores)
-::  |=  [p=@p =score:pushups]
-::  %+  frond  (scot %p p)
-::  :-  %a
-::  :~
-::      (numb day:score)
-::      (numb life:score)
-::  ==
-::::
+++  enjs-county
+  =,  enjs:format
+  |=  [=county:creator]
+  ^-  json
+  :-  %a
+  :::-  [%s (scot %p our.bowl)]
+  %+  turn
+    ~(tap by county)
+  |=  [p=@p value=@t]
+  %+  frond  (scot %p p)
+  [%s value]
+::
 ::++  dejs-action
 ::  =,  dejs:format
 ::  |=  jon=json
@@ -207,4 +211,9 @@
 ::  %-  of
 ::  :~  [%push ni]
 ::  ==
+++  dejs-creation
+  =,  dejs:format
+  |=  jon=json
+  ^-  @t
+  (so jon)
 --
