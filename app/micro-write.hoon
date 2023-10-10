@@ -96,7 +96,7 @@
     :*  %pass  /micro  %agent
         [our.bowl %micro]  %poke
         %micro-action  
-        !>([%bump '/apps/micro-write'])
+        !>([%link '/apps/micro-write'])
     ==
   ==
 ::
@@ -127,7 +127,13 @@
   |=  =vase
   ^+  that
   ?>  ?=([%0 *] q.vase)
-  that(state !<(state-0 vase))
+  =.  that  that(state !<(state-0 vase))
+  %-  emit
+  :*  %pass  /micro  %agent
+      [our.bowl %micro]  %poke
+      %micro-action  
+      !>([%link '/apps/micro-write'])
+  ==
 ::
 ++  watch
   |=  =path
