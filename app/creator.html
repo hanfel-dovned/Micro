@@ -16,9 +16,14 @@
       })
       .then(response => {
         if (response.status === 200) {
-          location.reload();  // Refresh the page only if the server responds with 200 OK
+          const redirectUrl = response.headers.get("Location");  // Replace 'Location' with the actual header name, if different
+          if (redirectUrl) {
+            window.location.href = redirectUrl;  // Redirect to the new URL
+          } else {
+            location.reload();  // Fallback: Refresh the page if the header is not found
+          }
         }
-      });
+      })
     });
   </script>
 </body>

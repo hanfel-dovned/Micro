@@ -120,7 +120,7 @@
 ++  handle-creation
   |=  ui=@t
   ^+  that
-  that(apps (~(put by apps) 'test app' [ui ~ ~]))
+  that(apps (~(put by apps) 'test app' [ui ~ (silt ~[%replace-text])]))
   ::send to relay here. need to get my url from eyre
 ::
 ++  handle-http
@@ -143,9 +143,9 @@
       =/  ui  (dejs-creation +.json)
       =.  that  (handle-creation ui)
       ::=/  url  
-      ::  %-  crip 
+      ::  %-  crip
       ::  ['/' 'apps' '/' 'creator' '/' (scot %da now.bowl) ~]
-      (emil (flop (send [200 ~ [%redirect './test app']])))
+      (emil (flop (send [200 ~ [%redirect './creator/test app']])))
     ::
         [%apps %creator @ ~]
       ?<  (gth src.bowl 0xffff.ffff)
