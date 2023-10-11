@@ -118,9 +118,9 @@
   ==
 ::
 ++  handle-creation
-  |=  ui=@t
+  |=  [name=@t ui=@t]
   ^+  that
-  that(apps (~(put by apps) 'test app' [ui ~ (silt ~[%replace-text])]))
+  that(apps (~(put by apps) name [ui ~ (silt ~[%replace-text])]))
   ::send to relay here. need to get my url from eyre
 ::
 ++  handle-http
@@ -140,12 +140,9 @@
         [%apps %creator ~]
       ?>  =(our.bowl src.bowl)
       =/  json  (de:json:html q.u.body.request.inbound-request)
-      =/  ui  (dejs-creation +.json)
-      =.  that  (handle-creation ui)
-      ::=/  url  
-      ::  %-  crip
-      ::  ['/' 'apps' '/' 'creator' '/' (scot %da now.bowl) ~]
-      (emil (flop (send [200 ~ [%redirect './creator/test app']])))
+      =/  new  (dejs-creation +.json)
+      =.  that  (handle-creation new)
+      (emil (flop (send [200 ~ [%none ~]])))
     ::
         [%apps %creator @ ~]
       ?<  (gth src.bowl 0xffff.ffff)
@@ -165,6 +162,10 @@
         [%apps %creator ~]
       ?>  =(our.bowl src.bowl)
       [200 ~ [%html ui]]
+    ::
+        [%apps %creator %list-of-apps-as-json ~]
+      ?>  =(our.bowl src.bowl)
+      [200 ~ [%json (enjs-apps apps)]]
     ::
         [%apps %creator @ ~]
       ?:  (gth src.bowl 0xffff.ffff)
@@ -194,13 +195,30 @@
   =,  enjs:format
   |=  =county:creator
   ^-  json
-  :-  %a
-  :::-  [%s (scot %p our.bowl)]
+  %-  pairs
+  :~
+      [%host [%s (scot %p our.bowl)]]
+      [%user [%s (scot %p src.bowl)]]
+      ::
+      :-  %data
+      %-  pairs
+      %+  turn
+        ~(tap by county)
+      |=  [p=@p value=@t]
+      :-  (scot %p p)
+      [%s value]
+  ==
+::
+++  enjs-apps
+  =,  enjs:format
+  |=  =apps:creator
+  ^-  json
+  %-  pairs
   %+  turn
-    ~(tap by county)
-  |=  [p=@p value=@t]
-  %+  frond  (scot %p p)
-  [%s value]
+    ~(tap by apps)
+  |=  [=id:creator =app:creator]
+  :-  id
+  [%s ui:app]
 ::
 ++  dejs-action
   =,  dejs:format
@@ -215,6 +233,7 @@
 ++  dejs-creation
   =,  dejs:format
   |=  jon=json
-  ^-  @t
-  (so jon)
+  ^-  [@t @t]
+  %.  jon
+  (ot [appname+so ui+so ~])
 --

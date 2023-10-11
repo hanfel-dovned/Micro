@@ -1,30 +1,219 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>App Creator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro App Builder</title>
+    <style>
+        .step {
+            display: none;
+        }
+        body {
+            font-family: Arial, sans-serif; /* Optional: for a more readable font */
+            padding: 20px;
+        }
+
+        .editor-container {
+            display: flex; /* Flexbox layout */
+            gap: 2%; /* Gap between the editor and the preview */
+        }
+
+        textarea {
+            flex: 1; /* Take up half the width */
+            height: 70vh;
+            resize: vertical; /* Allow vertical resizing only */
+        }
+
+        #preview {
+            flex: 1; /* Take up half the width */
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 70vh;
+            overflow: auto;
+        }
+    </style>
 </head>
 <body>
-  <textarea id="uiText" rows="10" cols="50"></textarea><br>
-  <button id="createButton">Create</button>
 
+<!-- Step One -->
+<div id="step1" class="step">
+    <p>Micro lets you easily make a simple Urbit app and have it automatically appear in everyone's Micro feed.</p>
+    <p>You'll host this app on your ship, just like a group chat, and other people will be able to post data to it and read data from it.</p>
+    <p>Use the Create App button below to name and initialize your new app.</p>
+    <p>Then click on it under Edit Existing Apps to get started.</p>
+    <input type="text" id="appTitle" placeholder="New App Name">
+    <button onclick="createApp()">Create App</button>
+    <p>Edit Existing Apps:</p>
+    <div id="appList"></div>
+</div>
+
+<!-- Step Two -->
+<div id="step2" class="step">
+  <p>As the app host, you'll hold a map of user to value in your state.</p>
+  <p>You'll serve this state, along with the UI, from a public-facing webpage on your ship.</p>
+  <p>Users will use eAuth to log into your app with their Urbit ID and update their data using the pre-defined functions below.</p>
+  <p>Creating a micro app is fundamentally about finding interesting interactions around user-submitted data.</p>
+
+  <div class="editor-container">
+      <textarea id="htmlEditor" oninput="updatePreview()"></textarea>
+      <iframe id="preview" frameborder="0"></iframe>
+    </div>
+  <button onclick="saveApp()">Save</button>
+</div>
+
+<script>
+    let currentStep = 1;
+    let currentApp = "";
+    document.getElementById('step1').style.display = 'block';
+
+    // Fetch the list of apps when the page loads
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('/apps/creator/list-of-apps-as-json')
+        .then(response => response.json())
+        .then(data => {
+            const appListDiv = document.getElementById('appList');
+            for (let appTitle in data) {
+                const btn = document.createElement('button');
+                btn.textContent = appTitle;
+                btn.onclick = function() {
+                    loadApp(appTitle, data[appTitle]);
+                    goToStep(2);
+                };
+                appListDiv.appendChild(btn);
+            }
+        });
+
+        const templateContent = document.getElementById('template').innerText;
+        document.getElementById('htmlEditor').value = templateContent;
+        updatePreview();
+    });
+
+    function loadApp(name, htmlContent) {
+        currentApp = name;
+        document.getElementById('htmlEditor').value = htmlContent;
+        updatePreview();
+    }
+
+    function createApp() {
+        const appName = document.getElementById("appTitle").value;
+        let placeholderUI = document.getElementById('template').innerText;
+
+        // Replace the placeholder with the actual appName
+        placeholderUI = placeholderUI.replace('appName = $$$$$;', `appName = '${appName}';`);
+
+        const appData = {
+            appname: appName,
+            ui: placeholderUI
+        };
+
+        fetch('/apps/creator', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(appData)
+        })
+        .then(response => {
+            if (response.status === 200) {
+                location.reload();
+            }
+        });
+    }
+
+    function goToStep(step) {
+        document.getElementById('step' + currentStep).style.display = 'none';
+        document.getElementById('step' + step).style.display = 'block';
+        currentStep = step;
+    }
+
+    function updatePreview() {
+        const htmlContent = document.getElementById('htmlEditor').value;
+        const iframe = document.getElementById('preview');
+        iframe.contentWindow.document.open();
+        iframe.contentWindow.document.write(htmlContent);
+        iframe.contentWindow.document.close();
+    }
+
+    function saveApp() {
+        const appName = currentApp;
+        let placeholderUI = document.getElementById('htmlEditor').value;
+
+        const appData = {
+            appname: appName,
+            ui: placeholderUI
+        };
+
+        fetch('/apps/creator', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(appData)
+        })
+        .then(response => {
+            if (response.status === 200) {
+                location.reload();
+            }
+        });
+    }
+</script>
+
+<script id="template" type="text/template">
+<!DOCTYPE html>
+<html>
+<body>
+  <input id="postText"></input><br>
+  <button id="postButton" onclick="post()">Post</button>
+  <div id="dataContainer"></div>
   <script>
-    document.getElementById("createButton").addEventListener("click", function() {
-      const text = document.getElementById("uiText").value;
-      fetch('/apps/creator', {
-        method: 'POST',
-        body: JSON.stringify(text)
+    //Make sure to close the script tag at the bottom!
+    
+    //This code gets the data from Urbit to the web frontend and
+    //creates the Post function that lets users post data back to Urbit.
+    //You probably shouldn't mess with this JS.
+    //Just skip down to the renderPage function.
+
+    appName = $$$$$;
+
+    async function getState() {
+      const response = await fetch('/apps/creator/' + appName + '/state')
+      return response.json()
+    }
+    getState().then((state) => renderPage(state))
+
+    function post() {
+      const text = document.getElementById("postText").value;
+      fetch('/apps/creator/' + appName, {
+          method: 'POST',
+          body: JSON.stringify({"replace-text": text })
       })
       .then(response => {
         if (response.status === 200) {
-          const redirectUrl = response.headers.get("Location");  // Replace 'Location' with the actual header name, if different
-          if (redirectUrl) {
-            window.location.href = redirectUrl;  // Redirect to the new URL
-          } else {
-            location.reload();  // Fallback: Refresh the page if the header is not found
-          }
+          location.reload();
         }
-      })
-    });
-  </script>
+      });
+    }
+
+    function renderPage(state) {
+      console.log(state);
+
+      data = state.data;  //map of user to value
+      host = state.host;  //the app host
+      user = state.user;  //the logged in user
+
+      // Here's a simple example of displaying user data in your app.
+      const container = document.getElementById("dataContainer");
+      for (let user in data) {
+          let pData = document.createElement('p');
+          pData.textContent = user + ': ' + data[user];
+          container.appendChild(pData);
+      }
+    }
+    <" + "/script> <!-- Close this tag to render your app properly! -->
+</body>
+</html>  
+</script>
+  
+
 </body>
 </html>
