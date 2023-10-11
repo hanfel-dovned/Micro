@@ -120,7 +120,14 @@
 ++  handle-creation
   |=  [name=@t ui=@t]
   ^+  that
-  that(apps (~(put by apps) name [ui ~ (silt ~[%replace-text])]))
+  =/  old  
+    ^-  (unit app:creator)  
+    (~(get by apps) name)
+  =/  data
+    ?~  old
+      ~
+    county.u.old
+  that(apps (~(put by apps) name [ui data (silt ~[%replace-text])]))
   ::send to relay here. need to get my url from eyre
 ::
 ++  handle-http

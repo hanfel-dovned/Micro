@@ -82,6 +82,24 @@
       100% { transform: translate(0px, 0px); }
     }
 
+    #hammerButton {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      background: transparent;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 3;
+      padding: 0;
+      outline: none;
+    }
+
+    #hammerButton:hover {
+      opacity: 0.8;
+    }
+
+
   </style>
 </head>
 <body>
@@ -90,6 +108,7 @@
     <iframe id="iframe2" class="hidden"></iframe>
     <button id="switchButton"></button>
     <canvas id="staticCanvas" class="hidden"></canvas>
+    <button id="hammerButton" onclick="location.href='/apps/creator'">&#128296;</button>
   </div>
   <script>
     if ('serviceWorker' in navigator) {

@@ -59,6 +59,7 @@
       <iframe id="preview" frameborder="0"></iframe>
     </div>
   <button onclick="saveApp()">Save</button>
+  <button onclick="shareApp()">Share</button>
 </div>
 
 <script>
@@ -154,6 +155,19 @@
             if (response.status === 200) {
                 location.reload();
             }
+        });
+    }
+
+    function shareApp() {
+        const appName = currentApp;
+        const url = window.location.href + "/" + appName;
+        const shareText = `:micro &micro-action [%link '${url}']`;
+
+        // Copy to clipboard
+        navigator.clipboard.writeText(shareText).then(function() {
+            alert('Copied a command to your clipboard. Have others run this command in their dojo to see your app in Micro.');
+        }).catch(function(err) {
+            alert('Failed to copy link: ' + err);
         });
     }
 </script>
