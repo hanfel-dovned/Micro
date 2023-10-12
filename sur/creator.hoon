@@ -1,14 +1,22 @@
 |%
 +$  id  @t
-+$  county  (map ship=@p value=@t)  :: state has counties
-+$  app  [ui=@t =county transforms=(set transform)]
++$  ui  @t
++$  key  @t
++$  value  @t
++$  county  (map =ship (map =key =value))  :: state has counties
++$  app  [=ui =county published=?]
 +$  apps  (map =id =app)
-+$  transform
-  $%  %add
-      %replace-text
++$  app-action
+  $%  [%put-in-map =key =value]
   ==
-+$  action
-  $%  [%replace-text text=@t]
-      [%add num=@ud]
+::
++$  create-action
+  $%  [%save =id =ui]
+      [%publish =id]
+      [%unpublish =id]
+      [%block-user =ship]
+      [%unblock-user =ship]
+      [%destroy-app =id]
+      [%delete-user-data =id =ship]
   ==
 --

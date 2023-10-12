@@ -28,10 +28,10 @@
         [our.bowl %pals]  %watch  /targets
     ==
     ::
-    :*  %pass  /micro  %agent
-        [our.bowl %micro]  %poke
-        %micro-action  !>([%link '/apps/micro-board'])
-    ==
+    :::*  %pass  /micro  %agent
+    ::    [our.bowl %micro]  %poke
+    ::    %micro-action  !>([%link '/apps/micro-board'])
+    ::==
   ==
 ::
 ++  on-save

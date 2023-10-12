@@ -49,22 +49,26 @@
 
 <!-- Step Two -->
 <div id="step2" class="step">
-  <p>As the app host, you'll hold a map of user to value in your state.</p>
+  <p>As the app host, you'll hold a map of user to data in your state.</p>
   <p>You'll serve this state, along with the UI, from a public-facing webpage on your ship.</p>
   <p>Users will use eAuth to log into your app with their Urbit ID and update their data using the pre-defined functions below.</p>
   <p>Creating a micro app is fundamentally about finding interesting interactions around user-submitted data.</p>
+  <p>Save will save your app's UI. Publish will make your app publicly viewable.</p>
+  <p>Share is a temporary button until I get the star relay working. Use that to share your app with me and others!</p>
 
   <div class="editor-container">
       <textarea id="htmlEditor" oninput="updatePreview()"></textarea>
       <iframe id="preview" frameborder="0"></iframe>
     </div>
   <button onclick="saveApp()">Save</button>
+  <button id="publishButton" onclick="publishApp()">Publish</button>
   <button onclick="shareApp()">Share</button>
 </div>
 
 <script>
     let currentStep = 1;
     let currentApp = "";
+    let published = false;
     document.getElementById('step1').style.display = 'block';
 
     // Fetch the list of apps when the page loads
@@ -77,7 +81,7 @@
                 const btn = document.createElement('button');
                 btn.textContent = appTitle;
                 btn.onclick = function() {
-                    loadApp(appTitle, data[appTitle]);
+                    loadApp(appTitle, data[appTitle].ui, data[appTitle].published);
                     goToStep(2);
                 };
                 appListDiv.appendChild(btn);
@@ -89,8 +93,14 @@
         updatePreview();
     });
 
-    function loadApp(name, htmlContent) {
+    function loadApp(name, htmlContent, pub) {
         currentApp = name;
+        published = pub;
+        if (published) {
+            document.getElementById('publishButton').style.display = 'none';
+        } else {
+            document.getElementById('publishButton').style.display = 'block';
+        }
         document.getElementById('htmlEditor').value = htmlContent;
         updatePreview();
     }
@@ -103,7 +113,7 @@
         placeholderUI = placeholderUI.replace('appName = $$$$$;', `appName = '${appName}';`);
 
         const appData = {
-            appname: appName,
+            id: appName,
             ui: placeholderUI
         };
 
@@ -112,7 +122,7 @@
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(appData)
+            body: JSON.stringify({"save": appData})
         })
         .then(response => {
             if (response.status === 200) {
@@ -140,7 +150,7 @@
         let placeholderUI = document.getElementById('htmlEditor').value;
 
         const appData = {
-            appname: appName,
+            id: appName,
             ui: placeholderUI
         };
 
@@ -149,10 +159,34 @@
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(appData)
+            body: JSON.stringify({"save": appData})
         })
         .then(response => {
             if (response.status === 200) {
+                location.reload();
+            }
+        });
+    }
+
+    function publishApp() {
+        if (published) {
+            alert('This app is already published.');
+            return;
+        }
+
+        const appName = currentApp;
+        const dataToSend = JSON.stringify({"publish":  {"id": appName}});
+
+        fetch('/apps/creator', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: dataToSend
+        })
+        .then(response => {
+            if (response.status === 200) {
+                alert('App published');
                 location.reload();
             }
         });
@@ -177,15 +211,15 @@
 <html>
 <body>
   <input id="postText"></input><br>
-  <button id="postButton" onclick="post()">Post</button>
+  <button id="postButton" onclick="postButton()">Post</button>
   <div id="dataContainer"></div>
   <script>
     //Make sure to close the script tag at the bottom!
     
     //This code gets the data from Urbit to the web frontend and
     //creates the Post function that lets users post data back to Urbit.
-    //You probably shouldn't mess with this JS.
-    //Just skip down to the renderPage function.
+    //If you don't understand what's going on here,
+    //just skip down to the renderPage function.
 
     appName = $$$$$;
 
@@ -195,11 +229,10 @@
     }
     getState().then((state) => renderPage(state))
 
-    function post() {
-      const text = document.getElementById("postText").value;
+    function post(key, value) {
       fetch('/apps/creator/' + appName, {
           method: 'POST',
-          body: JSON.stringify({"replace-text": text })
+          body: JSON.stringify({"put-in-map": {"key": key, "value": value}})
       })
       .then(response => {
         if (response.status === 200) {
@@ -208,20 +241,28 @@
       });
     }
 
+    function postButton() {
+      const text = document.getElementById("postText").value;
+      post("default", text);
+    }
+
     function renderPage(state) {
       console.log(state);
 
-      data = state.data;  //map of user to value
+      data = state.data;  //(map ship (map key=@t value=@t))
       host = state.host;  //the app host
       user = state.user;  //the logged in user
 
       // Here's a simple example of displaying user data in your app.
       const container = document.getElementById("dataContainer");
       for (let user in data) {
-          let pData = document.createElement('p');
-          pData.textContent = user + ': ' + data[user];
-          container.appendChild(pData);
+          if (data[user].hasOwnProperty("default")) {
+              let pData = document.createElement('p');
+              pData.textContent = user + ': ' + data[user]["default"];
+              container.appendChild(pData);
+          }
       }
+
     }
     <" + "/script> <!-- Close this tag to render your app properly! -->
 </body>

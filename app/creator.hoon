@@ -6,7 +6,7 @@
 ::
 +$  versioned-state  $%(state-0)
 ::
-+$  state-0  [%0 =apps:creator]
++$  state-0  [%0 =apps:creator blocked=(set ship)]
 ::
 +$  card  card:agent:gall
 --
@@ -95,40 +95,82 @@
   ?+    -.cage  !!
       %handle-http-request
     (handle-http !<([@ta =inbound-request:eyre] +.cage))
+      %creator-create-action
+    (handle-create-action !<(create-action:creator +.cage))
   ==
 ::
-++  handle-action
-  |=  [=id:creator act=action:creator]
+++  handle-app-action
+  |=  [=id:creator act=app-action:creator]
   ^+  that
+  ?<  (gth src.bowl 0xffff.ffff)
   =/  app  
     ^-  app:creator  
     (~(got by apps) id)
-  ?>  (~(has in transforms.app) -.act)
-  =-  that(apps (~(put by apps) id [ui.app - transforms.app]))  
+  =-  that(apps (~(put by apps) id [ui.app - published.app]))  
   ?-    -.act
-      %replace-text
-    (~(put by county.app) src.bowl text.act)
-    ::
-    ::  value as @ud isn't supported yet, so this isn't useful yet
-      %add
-    =/  old  (~(get by county:app) src.bowl)
-    =/  num  
-      ?~  old  0  u.old
-    (~(put by county:app) src.bowl (add num num.act))
+      %put-in-map
+    %+  ~(put by county.app) 
+      src.bowl
+    =/  user-map  (~(get by county.app) src.bowl)
+    ?~  user-map
+      (malt (limo [key.act value.act]~))
+    (~(put by u.user-map) key.act value.act)
   ==
 ::
-++  handle-creation
-  |=  [name=@t ui=@t]
+++  handle-create-action
+  |=  act=create-action:creator
   ^+  that
-  =/  old  
-    ^-  (unit app:creator)  
-    (~(get by apps) name)
-  =/  data
-    ?~  old
-      ~
-    county.u.old
-  that(apps (~(put by apps) name [ui data (silt ~[%replace-text])]))
-  ::send to relay here. need to get my url from eyre
+  ?>  =(src.bowl our.bowl)
+  ?-    -.act
+      %save
+    =/  old  
+      ^-  (unit app:creator)  
+      (~(get by apps) id.act)
+    =/  ct
+      ?~  old  ~
+      county.u.old
+    =/  pb
+      ?~  old  %.n
+      published.u.old
+    that(apps (~(put by apps) id.act [ui.act ct pb]))
+  ::
+      %publish
+    =/  old  
+      ^-  app:creator
+      (~(got by apps) id.act)
+    =/  ct  county.old
+    =/  ui  ui.old
+    ::  send poke to relay here. need my url from eyre
+    that(apps (~(put by apps) id.act [ui ct %.y]))
+  ::
+      %unpublish
+    =/  old  
+      ^-  app:creator
+      (~(got by apps) id.act)
+    =/  ct  county.old
+    =/  ui  ui.old
+    ::  send poke to relay here. need my url from eyre
+    that(apps (~(put by apps) id.act [ui ct %.n]))
+  ::
+      %block-user
+    that(blocked (~(put in blocked) ship.act))
+  ::
+      %unblock-user
+    that(blocked (~(del in blocked) ship.act))
+  ::
+      %destroy-app
+    that(apps (~(del by apps) id.act))
+    ::also unpublish. need my url from eyre
+  ::
+      %delete-user-data
+    =/  old  
+      ^-  app:creator
+      (~(got by apps) id.act)
+    =/  pb  published.old
+    =/  ui  ui.old
+    =/  ct  (~(del by county.old) ship.act)
+    that(apps (~(put by apps) id.act [ui ct pb]))
+  ==
 ::
 ++  handle-http
   |=  [eyre-id=@ta =inbound-request:eyre]
@@ -147,16 +189,22 @@
         [%apps %creator ~]
       ?>  =(our.bowl src.bowl)
       =/  json  (de:json:html q.u.body.request.inbound-request)
-      =/  new  (dejs-creation +.json)
-      =.  that  (handle-creation new)
+      =/  act  (dejs-create-action +.json)
+      =.  that  (handle-create-action act)
       (emil (flop (send [200 ~ [%none ~]])))
     ::
         [%apps %creator @ ~]
       ?<  (gth src.bowl 0xffff.ffff)
       =/  json  (de:json:html q.u.body.request.inbound-request)
-      =/  act  (dejs-action +.json)
+      =/  act  (dejs-app-action +.json)
       =/  id  +14:site
-      =.  that  (handle-action [id act])
+      =/  app
+        ^-  app:creator
+        (~(got by apps) id)
+      ?>  ?|  =(%.y published.app)
+              =(src.bowl our.bowl)
+          ==
+      =.  that  (handle-app-action [id act])
       (emil (flop (send [200 ~ [%none ~]])))
     ==
     ::
@@ -184,6 +232,9 @@
       =/  app
         ^-  app:creator
         (~(got by apps) id)
+      ?>  ?|  =(%.y published.app)
+              =(src.bowl our.bowl)
+          ==
       =/  fe  ui.app
       [200 ~ [%html fe]]
     ::
@@ -193,6 +244,9 @@
       =/  app
         ^-  app:creator
         (~(got by apps) id)
+      ?>  ?|  =(%.y published.app)
+              =(src.bowl our.bowl)
+          ==
       =/  ct  county.app
       [200 ~ [%json (enjs-county ct)]]
     ==
@@ -211,8 +265,13 @@
       %-  pairs
       %+  turn
         ~(tap by county)
-      |=  [p=@p value=@t]
-      :-  (scot %p p)
+      |=  [user=@p m=(map =key:creator =value:creator)]
+      :-  (scot %p user)
+      %-  pairs
+      %+  turn
+        ~(tap by m)
+      |=  [=key:creator =value:creator]
+      :-  key
       [%s value]
   ==
 ::
@@ -225,22 +284,32 @@
     ~(tap by apps)
   |=  [=id:creator =app:creator]
   :-  id
-  [%s ui:app]
-::
-++  dejs-action
-  =,  dejs:format
-  |=  jon=json
-  ^-  action:creator
-  %.  jon
-  %-  of
-  :~  [%replace-text so]
-      [%add ni]
+  %-  pairs
+  :~  [%ui [%s ui:app]]
+      [%published [%b published:app]]
   ==
 ::
-++  dejs-creation
+++  dejs-app-action
   =,  dejs:format
   |=  jon=json
-  ^-  [@t @t]
+  ^-  app-action:creator
   %.  jon
-  (ot [appname+so ui+so ~])
+  %-  of
+  :~  [%put-in-map (ot ~[key+so value+so])]  
+  ==
+::
+++  dejs-create-action
+  =,  dejs:format
+  |=  jon=json
+  ^-  create-action:creator
+  %.  jon
+  %-  of
+  :~  [%save (ot ~[id+so ui+so])]  
+      [%publish (ot ~[id+so])]
+      [%unpublish (ot ~[id+so])]
+      [%block-user (ot ~[user+(se %p)])]
+      [%unblock-user (ot ~[user+(se %p)])]
+      [%destroy-app (ot ~[id+so])]
+      [%delete-user-data (ot ~[id+so user+(se %p)])]  
+  ==
 --
