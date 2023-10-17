@@ -4,14 +4,15 @@
   <title>Pushups</title>
   <style>
     body, html {
-      height: 100vh; /* Full viewport height */
+      height: auto;  /* Change from 100vh */
       margin: 0;
       font-family: 'Courier New', monospace;
-      display: block;  /* Change from flex */
+      display: block;
       background-color: #000;
       color: #fff;
       padding: 20px;
       font-size: 80px;
+      overflow-y: auto; /* Enables vertical scrolling */
     }
 
     .center-content {
@@ -21,11 +22,13 @@
       border-radius: 5px;
       border: 0px solid #fff;
       width: 90%;
-      height: 80vh; /* 80% of the viewport height */
-      margin: auto; /* Centers the element horizontally */
+      height: auto;  /* Change from 80vh to auto */
+      min-height: 80vh;  /* Sets a minimum height */
+      margin: auto;
       display: flex;
       flex-direction: column;
-      justify-content: space-around; /* Distribute space around items */
+      justify-content: start; /* Changed from space-around */
+      overflow-y: auto;  /* Allows scrolling within the .center-content div */
     }
 
     h1, h2 {
