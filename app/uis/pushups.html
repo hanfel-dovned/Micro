@@ -168,14 +168,22 @@
         }
       }
 
-      const leaderboard = Object.entries(combined).sort((a, b) => b[1][1] - a[1][1]);
+      // Sort by daily score
+      const dailyLeaderboard = Object.entries(combined).sort((a, b) => b[1][0] - a[1][0]);
 
-      leaderboard.forEach(([ship, [daily, lifetime]]) => {
+      // Sort by lifetime score
+      const lifetimeLeaderboard = Object.entries(combined).sort((a, b) => b[1][1] - a[1][1]);
+
+      // Render the sorted daily leaderboard
+      dailyLeaderboard.forEach(([ship, [daily, lifetime]]) => {
         const dailyP = document.createElement('p');
         dailyP.className = 'score';
         dailyP.appendChild(document.createTextNode(`${ship}: ${daily}`));
         dailyDiv.appendChild(dailyP);
+      });
 
+      // Render the sorted lifetime leaderboard
+      lifetimeLeaderboard.forEach(([ship, [daily, lifetime]]) => {
         const lifetimeP = document.createElement('p');
         lifetimeP.className = 'score';
         lifetimeP.appendChild(document.createTextNode(`${ship}: ${lifetime}`));
