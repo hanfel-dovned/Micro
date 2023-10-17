@@ -31,6 +31,13 @@
             height: 70vh;
             overflow: auto;
         }
+
+        #actionButtons {
+          display: flex;
+          justify-content: space-between;
+          width: 120px;  /* Adjust the width as needed */
+        }
+
     </style>
 </head>
 <body>
@@ -59,8 +66,10 @@
       <textarea id="htmlEditor" oninput="updatePreview()"></textarea>
       <iframe id="preview" frameborder="0"></iframe>
     </div>
-  <button onclick="saveApp()">Save</button>
-  <button id="publishButton" onclick="publishApp()">Publish</button>
+    <div id="actionButtons">
+      <button onclick="saveApp()">Save</button>
+      <button id="publishButton" onclick="publishApp()">Publish</button>
+    </div>    
 </div>
 
 <script>
@@ -137,10 +146,23 @@
 
     function updatePreview() {
         const htmlContent = document.getElementById('htmlEditor').value;
-        const iframe = document.getElementById('preview');
-        iframe.contentWindow.document.open();
-        iframe.contentWindow.document.write(htmlContent);
-        iframe.contentWindow.document.close();
+        
+        // Remove the existing iframe
+        const oldIframe = document.getElementById('preview');
+        oldIframe.parentNode.removeChild(oldIframe);
+
+        // Create a new iframe
+        const newIframe = document.createElement('iframe');
+        newIframe.id = 'preview';
+        newIframe.frameBorder = '0';
+        
+        // Append the new iframe to the DOM
+        document.querySelector('.editor-container').appendChild(newIframe);
+
+        // Write the new content into the new iframe
+        newIframe.contentWindow.document.open();
+        newIframe.contentWindow.document.write(htmlContent);
+        newIframe.contentWindow.document.close();
     }
 
     function saveApp() {
@@ -209,13 +231,14 @@
       align-items: center;
       padding: 0 10px;
     }
-    
+
     #loginButton {
       background-color: white;
       color: black;
       border: none;
       border-radius: 6px;
       padding: 5px 10px;
+      font-size: 12px;
       cursor: pointer;
     }
 
@@ -226,11 +249,19 @@
     #loginButton:active {
       background-color: #d9d9d9;
     }
+
+    .topBarText {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.5;
+      background-color: black;
+      border: none;
+    }
   </style>
 </head>
 <body>
   <div id="topBar" style="display:none;">
-    <p>Log in with Urbit to use this app.</p>
+    <p class="topBarText">Log in with Urbit to use this app.</p>
     <button id="loginButton" onclick="login()">Log In</button>
   </div>
   <input id="postText"></input><br>
