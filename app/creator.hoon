@@ -194,7 +194,7 @@
       (emil (flop (send [200 ~ [%none ~]])))
     ::
         [%apps %creator @ ~]
-      ?<  (gth src.bowl 0xffff.ffff)
+      ?<  (gth src.bowl 0xffff.ffff) ::must be a planet to POST
       =/  json  (de:json:html q.u.body.request.inbound-request)
       =/  act  (dejs-app-action +.json)
       =/  id  +14:site
@@ -223,11 +223,11 @@
       [200 ~ [%json (enjs-apps apps)]]
     ::
         [%apps %creator @ ~]
-      ?:  (gth src.bowl 0xffff.ffff)
-        =/  redirect
-          %-  crip 
-          ['/' 'apps' '/' 'creator' '/' +14:site '&eauth' ~]
-        [302 ~ [%login-redirect redirect]]   
+      :: ?:  (gth src.bowl 0xffff.ffff)  :: public actually
+      ::   =/  redirect
+      ::     %-  crip 
+      ::     ['/' 'apps' '/' 'creator' '/' +14:site '&eauth' ~]
+      ::   [302 ~ [%login-redirect redirect]]   
       =/  id  +14:site
       =/  app
         ^-  app:creator
@@ -239,7 +239,7 @@
       [200 ~ [%html fe]]
     ::
         [%apps %creator @ %state ~]
-      ?<  (gth src.bowl 0xffff.ffff)
+      ::?<  (gth src.bowl 0xffff.ffff)  :: public actually
       =/  id  +14:site
       =/  app
         ^-  app:creator
@@ -249,7 +249,13 @@
           ==
       =/  ct  county.app
       [200 ~ [%json (enjs-county ct)]]
-    ==
+    ::
+        [%apps %creator @ %eauth ~]
+      =/  redirect
+        %-  crip 
+        ['/' 'apps' '/' 'creator' '/' +14:site '&eauth' ~]
+      [302 ~ [%login-redirect redirect]] 
+    ==  
   ==
 ::
 ++  enjs-county
