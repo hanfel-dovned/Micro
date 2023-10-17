@@ -83,10 +83,11 @@
   ^+  that
   %-  emil 
   :~  [%pass /eyre/connect %arvo %e %connect `/apps/micro %micro]
-      :::*  %pass  /micro  %agent
-      ::    [our.bowl %micro]  %poke
-      ::    %micro-action  !>([%bump '/apps/micro/welcome'])
-      ::==
+      ::
+      :*  %pass  /micro  %agent
+          [our.bowl %micro]  %poke
+          %micro-action  !>([%bump '/apps/micro/welcome'])
+      ==
       :::*  %pass  /micro  %agent
       ::    [our.bowl %micro]  %poke
       ::    %micro-action  !>([%link '/apps/groups'])

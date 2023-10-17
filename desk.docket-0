@@ -1,9 +1,9 @@
 :~  title+'Micro'
-    info+'A new experience every moment.'
+    info+'Create, share, and explore apps.'
     color+0xff.4444
     base+'micro'
     site+/apps/micro
-    version+[0 0 1]
+    version+[0 0 2]
     website+'https://x.com/hanfel_dovned'
     license+'Draconian'
 ==
