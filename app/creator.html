@@ -195,7 +195,11 @@
         }
 
         const appName = currentApp;
-        const dataToSend = JSON.stringify({"publish":  {"id": appName}});
+        const currentURL = window.location.href;
+        const appURL = `${currentURL}/${appName}`;
+
+        const dataToSend = JSON.stringify({"publish":  {"id": appName, "url": appURL}});
+        
 
         fetch('/apps/creator', {
             method: 'POST',

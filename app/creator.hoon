@@ -1,4 +1,4 @@
-/-  creator
+/-  creator, relay
 /+  dbug, default-agent, server, schooner
 /*  ui  %html  /app/creator/html
 ::
@@ -140,8 +140,9 @@
       (~(got by apps) id.act)
     =/  ct  county.old
     =/  ui  ui.old
-    ::  send poke to relay here. need my url from eyre
-    that(apps (~(put by apps) id.act [ui ct %.y]))
+    =.  that
+      that(apps (~(put by apps) id.act [ui ct %.y]))
+    (poke-relay [%publish url.act])
   ::
       %unpublish
     =/  old  
@@ -149,8 +150,9 @@
       (~(got by apps) id.act)
     =/  ct  county.old
     =/  ui  ui.old
-    ::  send poke to relay here. need my url from eyre
-    that(apps (~(put by apps) id.act [ui ct %.n]))
+    =.  that
+      that(apps (~(put by apps) id.act [ui ct %.n]))
+    (poke-relay [%unpublish url.act])
   ::
       %block-user
     that(blocked (~(put in blocked) ship.act))
@@ -170,6 +172,16 @@
     =/  ui  ui.old
     =/  ct  (~(del by county.old) ship.act)
     that(apps (~(put by apps) id.act [ui ct pb]))
+  ==
+::
+++  poke-relay
+  |=  =action:relay
+  ^+  that
+  %-  emit
+  :*  %pass  /publish 
+      %agent  [~ridlyd %relay] 
+      %poke  %relay-action
+      !>(action)
   ==
 ::
 ++  handle-http
@@ -223,11 +235,6 @@
       [200 ~ [%json (enjs-apps apps)]]
     ::
         [%apps %creator @ ~]
-      :: ?:  (gth src.bowl 0xffff.ffff)  :: public actually
-      ::   =/  redirect
-      ::     %-  crip 
-      ::     ['/' 'apps' '/' 'creator' '/' +14:site '&eauth' ~]
-      ::   [302 ~ [%login-redirect redirect]]   
       =/  id  +14:site
       =/  app
         ^-  app:creator
@@ -239,7 +246,6 @@
       [200 ~ [%html fe]]
     ::
         [%apps %creator @ %state ~]
-      ::?<  (gth src.bowl 0xffff.ffff)  :: public actually
       =/  id  +14:site
       =/  app
         ^-  app:creator
@@ -311,8 +317,8 @@
   %.  jon
   %-  of
   :~  [%save (ot ~[id+so ui+so])]  
-      [%publish (ot ~[id+so])]
-      [%unpublish (ot ~[id+so])]
+      [%publish (ot ~[id+so url+so])]
+      [%unpublish (ot ~[id+so url+so])]
       [%block-user (ot ~[user+(se %p)])]
       [%unblock-user (ot ~[user+(se %p)])]
       [%destroy-app (ot ~[id+so])]

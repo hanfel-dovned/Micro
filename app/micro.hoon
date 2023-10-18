@@ -1,4 +1,4 @@
-/-  micro
+/-  micro, relay
 /+  dbug, default-agent, server, schooner
 /*  ui  %html  /app/micro/html
 /*  welcome  %html  /app/uis/welcome/html
@@ -56,7 +56,8 @@
 ++  on-agent
   |=  [=wire =sign:agent:gall]
   ^-  (quip card _this)
-  `this
+  =^  cards  state  abet:(agent:hc [wire sign])
+  [cards this]
 ::
 ++  on-arvo
   |=  [=wire =sign-arvo]
@@ -79,25 +80,26 @@
 ++  emil  |=(lac=(list card) that(deck (welp lac deck)))
 ++  abet  ^-((quip card _state) [(flop deck) state])
 ::
+++  relay-card  
+  [%pass /relay %agent [~ridlyd %relay] %watch /new]
+::
 ++  init
   ^+  that
   %-  emil 
-  :~  [%pass /eyre/connect %arvo %e %connect `/apps/micro %micro]
-      ::
+  :~  relay-card
+      [%pass /eyre/connect %arvo %e %connect `/apps/micro %micro]
       :*  %pass  /micro  %agent
           [our.bowl %micro]  %poke
           %micro-action  !>([%bump '/apps/micro/welcome'])
       ==
-      :::*  %pass  /micro  %agent
-      ::    [our.bowl %micro]  %poke
-      ::    %micro-action  !>([%link '/apps/groups'])
-      ::==
   ==
 ::
 ++  load
   |=  =vase
   ^+  that
   ?>  ?=([%0 *] q.vase)
+  =.  that
+    (emit relay-card)
   that(state !<(state-0 vase))
 ::
 ++  watch
@@ -158,7 +160,6 @@
   =+  send=(cury response:schooner eyre-id)
   ::
   ?:  =(site [%apps %micro %manifest ~])
-    ~&  "Serving Manifest"
     (emil (flop (send [200 ~ [%application-json manifest]])))
   ?.  authenticated.inbound-request
     (emil (flop (send [302 ~ [%login-redirect './apps/micro']])))
@@ -223,4 +224,27 @@
   %-  of
   :~  [%view so]
   ==
+::
+++  agent
+  |=  [=wire =sign:agent:gall]
+  ^+  that
+  ?+    wire  !!
+      [%relay ~]
+    ?+    -.sign  !!
+        %kick
+      %-  emit
+      relay-card
+      ::
+        %fact
+      ?>  =(p.cage.sign %relay-update)
+      =/  upd  !<(update:relay q.cage.sign)
+      ?-    -.upd
+          %add
+        that(apps (~(put in apps) url.upd))
+          %remove
+        that(apps (~(del in apps) url.upd))
+      ==
+    ==
+  ==
+::
 --
