@@ -99,7 +99,22 @@
       opacity: 0.8;
     }
 
+    #openIframeButton {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      background: transparent;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 3;
+      padding: 0;
+      outline: none;
+    }
 
+    #openIframeButton:hover {
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
@@ -109,6 +124,7 @@
     <button id="switchButton"></button>
     <canvas id="staticCanvas" class="hidden"></canvas>
     <button id="hammerButton" onclick="location.href='/apps/creator'">&#128296;</button>
+    <button id="openIframeButton">&#8599;</button>
   </div>
   <script>
     if ('serviceWorker' in navigator) {
@@ -152,6 +168,11 @@
       const randomIndex = Math.floor(Math.random() * arr.length);
       return arr[randomIndex];
     }
+
+    document.getElementById("openIframeButton").addEventListener("click", function() {
+      const currentIframeUrl = iframes[activeIframe].src;
+      window.open(currentIframeUrl, '_blank');
+    });
 
     function renderPage(state)
     {

@@ -7,12 +7,21 @@
         font-family: Arial, sans-serif;
         text-align: center;
       }
+      .container {
+        max-width: 600px; /* Change this to your preferred max width */
+        margin: 0 auto;
+        padding: 20px;
+      }
     </style>
   </head>
   <body>
-    <p>Welcome to <b>Micro</b>!</p>
-    <p>Micro is most fun on mobile. You can open it on your phone and add it to your homescreen.</p>
-    <p>Click the big circle at the bottom to explore apps.</p>
-    <p>Click the hammer on the left to build one of your own.</p>
+    <div class="container">
+      <p>Welcome to <b>Micro</b>!</p>
+      <p>Micro is most fun on mobile. You can open it on your phone and add it to your homescreen.</p>
+      <p>Click the big circle at the bottom to explore apps.</p>
+      <p>Click the hammer on the left to build one of your own.</p>
+      <p>There's currently a bug with hosting providers preventing login buttons from working within Micro. Click the arrow in the bottom right and log in there instead.</p>
+      <p>(If you're self-hosted, you might need to look at <a href="https://github.com/urbit/urbit/issues/2723" target="_blank" rel="noopener noreferrer">this</a> and <a href="https://github.com/caddyserver/caddy/issues/3262#issuecomment-1633527119" target="_blank" rel="noopener noreferrer">this</a>.)</p>
+    </div>
   </body>
 </html>
