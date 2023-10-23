@@ -3,7 +3,7 @@
     color+0xff.4444
     base+'micro'
     site+/apps/micro
-    version+[0 0 2]
+    version+[0 1 0]
     website+'https://x.com/hanfel_dovned'
     license+'Draconian'
 ==
