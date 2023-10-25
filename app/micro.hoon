@@ -240,9 +240,15 @@
       =/  upd  !<(update:relay q.cage.sign)
       ?-    -.upd
           %add
-        that(apps (~(put in apps) url.upd))
+        %=  that
+          apps  (~(put in apps) url.upd)
+          new   (~(put in new) url.upd)
+        ==
           %remove
-        that(apps (~(del in apps) url.upd))
+        %=  that
+          apps  (~(del in apps) url.upd)
+          new   (~(del in new) url.upd)
+        ==
       ==
     ==
   ==
