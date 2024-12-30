@@ -1,4 +1,4 @@
-Micro is an Urbit app that allows you to create and publish toy web apps within a TikTok-like interface. ([Video here.](https://x.com/hanfel_dovned/status/1716515932099739731))
+Micro is an Urbit app that allows you to create and publish toy web apps within a TikTok-like interface. ([Video](https://x.com/hanfel_dovned/status/1716515932099739731))
 
 In addition to a bunch of built-in apps, Micro contains two major agents: `micro.hoon` and `creator.hoon`. 
 
